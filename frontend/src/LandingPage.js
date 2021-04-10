@@ -1,10 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Button, Card, CardHeader, CardBody, CardFooter, CardTitle, ListGroupItem, ListGroup, Container, Row, Col } from 'reactstrap';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/theme-monokai';
-import OpenSheetMusicDisplay from './OpenSheetMusicDisplay.jsx';
+import OpenSheetMusicDisplay from './OpenSheetDisplay.jsx';
 import CustomRule from './Syntax';
+import OpenSheetDisplay from './OpenSheetDisplay';
 
 // core components
 import ExamplesNavbar from './ExamplesNavbar.js';
@@ -12,6 +13,7 @@ import Footer from './Footer.js';
 
 export default function LandingPage() {
   const aceEditor = useRef();
+  const [refreshDisplayState, setDisplayState] = useState(0);
   React.useEffect(() => {
     document.body.classList.toggle('landing-page');
     const customRule = new CustomRule();
@@ -23,6 +25,12 @@ export default function LandingPage() {
       document.body.classList.toggle('landing-page');
     };
   }, []);
+
+  var openSheetDisplayRefresh = ()=> {
+    // document.getElementById('musicDisplay').remove();
+    
+    setDisplayState(refreshDisplayState + 1);
+  }
 
   var onChange = (value) => {
     console.log(value);
@@ -129,7 +137,7 @@ export default function LandingPage() {
               </Col>
             </Row>
             <Row>
-              <Col md='6'>
+              <Col md='12' lg='6'>
                 <Card className='card-coin card-plain'>
                   {/* <CardHeader>
                     <img alt='...' className='img-center img-fluid' src={require('./assets/img/bitcoin.png').default} />
@@ -164,7 +172,7 @@ export default function LandingPage() {
                   </CardFooter>
                 </Card>
               </Col>
-              <Col md='6'>
+              <Col md='12' lg='6'>
                 <Card className='card-coin card-plain'>
                   {/* <CardHeader>
                     <img alt='...' className='img-center img-fluid' src={require('./assets/img/etherum.png').default} />
@@ -172,12 +180,13 @@ export default function LandingPage() {
                   <CardBody>
                     <Row style={{ height: '75vh', padding: '1rem' }}>
                       <div style={{ background: '#fff', width: '100%', height: '75vh', overflow: 'auto' }}>
-                        <OpenSheetMusicDisplay file={'MuzioClementi_SonatinaOpus36No1_Part2.xml'} />
+                        {/* <OpenSheetMusicDisplay file={'MuzioClementi_SonatinaOpus36No1_Part2.xml'} /> */}
+                        <OpenSheetDisplay key={refreshDisplayState} file={'MuzioClementi_SonatinaOpus36No1_Part2.xml'}/>
                       </div>
                     </Row>
                   </CardBody>
                   <CardFooter className='text-center'>
-                    <Button className='btn-simple' color='success'>
+                    <Button className='btn-simple' color='success' onClick={openSheetDisplayRefresh}>
                       Refresh
                     </Button>
                   </CardFooter>
