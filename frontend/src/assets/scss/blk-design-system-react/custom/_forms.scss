@@ -1,5 +1,5 @@
 /* Form controls */
-@include form-control-placeholder(#6c757c, 1);
+@include form-control-placeholder(#dddddd, 1);
 
 .form-control{
   border-color: lighten($black,5%);
