@@ -170,7 +170,7 @@ function lex(input) {
 
 function test_lex() {
     text = document.getElementById("music_markdown_textarea").value;
-    tokens = console.log(lex(text));
+    tokens = lex(text);
     return tokens;
 }
 
