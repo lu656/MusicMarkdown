@@ -1,0 +1,79 @@
+##############################################
+## GRAMMAR Syntax highlighter
+##############################################
+
+name = syntax_highlighs
+file_extensions[] = js
+
+contexts[] {
+    main : context {
+        : inline_push {
+            regex \= (\{)
+            styles[] = .punctuation;
+            : pop {
+                regex \= (\})
+                styles[] = .punctuation;
+            }  
+            : include "main";
+        }
+        : inline_push {
+            regex \= (\[)
+            styles[] = .punctuation;
+            : pop {
+                regex \= (\])
+                styles[] = .punctuation;
+            }  
+            : include "main";
+        }
+        : inline_push {
+            regex \= (\()
+            styles[] = .punctuation;
+            : pop {
+                regex \= (\))
+                styles[] = .punctuation;
+            }  
+            : include "main";
+        }
+        : pattern {
+            regex \= (,|\:)
+            styles[] = .punctuation;
+        }
+        : inline_push {
+            regex \= (%)
+            styles[] = .punctuation;
+            : pattern {
+                regex \= (\\(?:\\|%))
+                styles[] = .escape_char;
+            } 
+            : pattern {
+                regex \= ([^%\\]+)
+                styles[] = .heading_texts;
+            }
+            : include "main";
+        }
+        : pattern {
+            regex \= ((?:\-?(?:0|(?:[1-9][0-9]*)))(?:(?:\.[0-9]*)(?:(?:e|E)(?:\+|\-)[0-9]+)?)?)
+            styles = .special;
+        }
+    }
+}
+
+styles [] {
+    .escape_char: style {
+        textmate_scope = constant.character.escape
+        pygments_scope = String.escape
+        color = #0a0
+        background_color = #232
+    }
+    .punctuation: style {
+        textmate_scope = keyword.operator
+        pygments_scope = punctuation
+        color = red_2
+    }
+    .heading_texts: style {
+        italic = true
+        textmate_scope = string.unquoted
+        pygments_scope = String.Char
+        color = gold
+    }
+}
