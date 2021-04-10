@@ -3,7 +3,6 @@ import { Line } from 'react-chartjs-2';
 import { Button, Card, CardHeader, CardBody, CardFooter, CardTitle, ListGroupItem, ListGroup, Container, Row, Col } from 'reactstrap';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/theme-monokai';
-import OpenSheetMusicDisplay from './OpenSheetDisplay.jsx';
 import CustomRule from './Syntax';
 import OpenSheetDisplay from './OpenSheetDisplay';
 
