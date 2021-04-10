@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Parser Tester</title>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="test_parser.css">
+    </head>
+    <body>
+        <h1 id="body_title">Parser Tester</h1>
+        <div class="center_text space_top_less">
+            <h3>Enter Your Music Markdown Here</h3>
+            <textarea id="music_markdown_textarea" cols="50" rows="5" maxlength="100"></textarea>
+        </div>
+        <div class="center_text space_top_less space_bottom">
+            <a id="run_music_markdown">Generate Sheet Music</a>
+        </div>
+        <div class="center_text space_top_less space space_bottom">
+            <h3>MusicXML will appear below</h3>
+            <textarea id="music_markdown_textarea" cols="50" rows="5" maxlength="100" disabled="true"></textarea>
+        </div>
+        <!-- <div id="sheet_music_area" class="center_text">
+            <header>Sheet Music will appear here</header>
+        </div> -->
+    </body>
+    <script src="parser.js"></script>
+</html>

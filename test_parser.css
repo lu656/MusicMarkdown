@@ -1,0 +1,66 @@
+html {
+    background-color: #141416;
+    font-family: 'Roboto', sans-serif;
+    color: white;
+
+}
+
+a {
+    color: white;
+    text-decoration: none;
+}
+
+#body_title {
+    font-size: 30pt;
+    /* font-family: 'Roboto', sans-serif; */
+    text-align: center;
+    /* margin-top: 10%; */
+}
+
+.center_text {
+    text-align: center;
+}
+
+.space_bottom {
+    margin-bottom: 50px;
+}
+
+.space_top {
+    margin-top: 50px;
+}
+
+.space_top_less {
+    margin-top: 30px;
+}
+
+#music_markdown_textarea {
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+    border:solid 1px black;
+    padding:10px;
+}
+
+#music_markdown_textarea:focus-visible {
+    outline: none;
+}
+
+#run_music_markdown {
+    border-style: solid;
+    border-color: white;
+    border-width: 3px;
+    border-radius: 10px;
+    padding: 10px;
+    /* margin-top: 20px; */
+}
+
+#sheet_music_area{
+    border: 2px dashed #fff;
+    height: 300px;
+    width: 500px;
+    border-radius: 5px;
+    margin:auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* flex-direction: column; */
+  }
