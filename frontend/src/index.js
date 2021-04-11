@@ -19,9 +19,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
-import './assets/scss/blk-design-system-react.scss?v=1.2.0';
-import './assets/demo/demo.css';
-import './assets/css/nucleo-icons.css';
 
 import LandingPage from './LandingPage';
 
