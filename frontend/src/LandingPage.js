@@ -10,10 +10,15 @@ import OpenSheetDisplay from './OpenSheetDisplay';
 import ExamplesNavbar from './ExamplesNavbar.js';
 import Footer from './Footer.js';
 
+import { parse_and_evaluate } from './parser';
+
 export default function LandingPage() {
   const aceEditor = useRef();
   const [refreshDisplayState, setDisplayState] = useState(0);
+  const [content, setContent] = useState('');
   React.useEffect(() => {
+    console.log('useEffect called');
+    localStorage.removeItem('parsedResult');
     document.body.classList.toggle('landing-page');
     const customRule = new CustomRule();
     const editor = aceEditor.current;
@@ -25,15 +30,21 @@ export default function LandingPage() {
     };
   }, []);
 
-  var openSheetDisplayRefresh = ()=> {
-    // document.getElementById('musicDisplay').remove();
-    
-    setDisplayState(refreshDisplayState + 1);
-  }
+  var openSheetDisplayRefresh = () => {
+    console.log(content);
+    console.log('refresh');
+    try {
+      var parsed = parse_and_evaluate(content);
+      localStorage.removeItem('parsedResult');
+      localStorage.setItem('parsedResult', parsed);
+      setDisplayState(refreshDisplayState + 1);
+    } catch (error) {}
+  };
 
   var onChange = (value) => {
-    console.log(value);
+    setContent(value);
   };
+
   return (
     <>
       <ExamplesNavbar />
@@ -125,7 +136,7 @@ export default function LandingPage() {
         </section>
         <section className='section section-lg section-coins'>
           <img alt='...' className='path' src={require('./assets/img/path3.png').default} />
-          <div style={{margin: '5rem'}}>
+          <div style={{ margin: '5rem' }}>
             <Row>
               <Col md='4'>
                 <hr className='line-info' />
@@ -180,7 +191,7 @@ export default function LandingPage() {
                     <Row style={{ height: '75vh', padding: '1rem' }}>
                       <div style={{ background: '#fff', width: '100%', height: '75vh', overflow: 'auto' }}>
                         {/* <OpenSheetMusicDisplay file={'MuzioClementi_SonatinaOpus36No1_Part2.xml'} /> */}
-                        <OpenSheetDisplay key={refreshDisplayState} file={'MuzioClementi_SonatinaOpus36No1_Part2.xml'}/>
+                        <OpenSheetDisplay key={refreshDisplayState} file={'music.xml'} />
                       </div>
                     </Row>
                   </CardBody>

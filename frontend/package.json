@@ -67,7 +67,7 @@
     "compile-sass": "node-sass --importer node_modules/node-sass-package-importer/dist/cli.js src/assets/scss/blk-design-system-react.scss src/assets/css/blk-design-system-react.css",
     "minify-sass": "node-sass --importer node_modules/node-sass-package-importer/dist/cli.js src/assets/scss/blk-design-system-react.scss src/assets/css/blk-design-system-react.min.css --output-style compressed",
     "map-sass": "node-sass --importer node_modules/node-sass-package-importer/dist/cli.js src/assets/scss/blk-design-system-react.scss src/assets/css/blk-design-system-react.css --source-map true",
-    "predeploy": "npm run build",
+    "predeploy": "npm run build && cp CNAME ./build",
     "deploy": "gh-pages -d build -e ./frontend/"
   },
   "eslintConfig": {
