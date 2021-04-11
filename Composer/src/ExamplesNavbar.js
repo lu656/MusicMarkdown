@@ -266,7 +266,7 @@ export default function ExamplesNavbar(props) {
             </div>
             <Nav navbar>
               <NavItem className='p-0'>
-                <NavLink data-placement='bottom' href='https://github.com' rel='noopener noreferrer' target='_blank' title='Check out our GitHub'>
+                <NavLink data-placement='bottom' href='https://github.com/lu656/MusicMarkdown' rel='noopener noreferrer' target='_blank' title='Check out our GitHub'>
                   <i className='fab fa-github' />
                   <p className='d-lg-none d-xl-none'>GitHub</p>
                 </NavLink>
