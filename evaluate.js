@@ -53,6 +53,19 @@ function evaluate(lexedInfo) {
 
         noteElem.appendChild(staffElem);
 
+        let hasStartSlur = false;
+        let hasStopSlur = false;
+
+        if (note[0] == "-") {
+            note = note.substring(1,note.length);   
+            hasStartSlur = true;
+        }
+
+        if (note[note.length - 1] == "-") {
+            note = note.substring(0,note.length - 1);  
+            hasStopSlur = true;
+        }
+
         let noteData = note.substring(1, note.length - 1).split(",");
         console.log(noteData);
 
@@ -87,6 +100,45 @@ function evaluate(lexedInfo) {
 
         if (firstNote) {
             currentChord = markdownType;
+        }
+
+        if (hasStopSlur) {
+            let notationsElem = xmlDoc.createElement("notations");
+            let slurElem = xmlDoc.createElement("slur");
+            slurElem.setAttribute("bezier-x","-16");
+            slurElem.setAttribute("bezier-y","14");
+            slurElem.setAttribute("default-x","7");
+            slurElem.setAttribute("default-y","-15");
+            slurElem.setAttribute("number","1");
+            slurElem.setAttribute("type","stop");
+            notationsElem.appendChild(slurElem);
+            noteElem.append(notationsElem);
+        }
+
+        if (hasStartSlur) {
+            let notationsElem = xmlDoc.createElement("notations");
+            let slurElem = xmlDoc.createElement("slur");
+            slurElem.setAttribute("bezier-x","19");
+            slurElem.setAttribute("bezier-y","12");
+            slurElem.setAttribute("default-x","6");
+            slurElem.setAttribute("default-y","-11");
+            slurElem.setAttribute("number","1");
+            if (markdownOctave <= 3) {
+                slurElem.setAttribute("placement","below");
+            } else {
+                if (markdownOctave == 4) {
+                    if (markdownNote == "B") {
+                        slurElem.setAttribute("placement","above");
+                    } else {
+                        slurElem.setAttribute("placement","below");
+                    }
+                } else {
+                    slurElem.setAttribute("placement","above");
+                }
+            }
+            slurElem.setAttribute("type","start");
+            notationsElem.appendChild(slurElem);
+            noteElem.append(notationsElem);
         }
 
         let pitchElem = xmlDoc.createElement("pitch");
@@ -309,6 +361,39 @@ function evaluate(lexedInfo) {
                 if (measureNode.getElementsByTagName("attributes").length == 0) {
                     measureNode.insertBefore(attributesElem,measureNode.firstChild);
                 }
+            } else if (measureLexElem.type == "crescendo") {
+                let directionNode = xmlDoc.createElement("direction");
+                let directionTypeNode = xmlDoc.createElement("direction-type");
+                let wedgeNode = xmlDoc.createElement("wedge");
+                let offsetNode = xmlDoc.createElement("offset");
+                
+                let offsetAmount = measureLexElem.value.substring(1,measureLexElem.length);
+                offsetNode.innerHTML = offsetAmount;
+
+                directionNode.setAttribute("placement","above");
+                wedgeNode.setAttribute("default-y","20");
+                wedgeNode.setAttribute("type","crescendo");
+                directionTypeNode.appendChild(wedgeNode);
+                directionNode.appendChild(directionTypeNode);
+                directionNode.appendChild(offsetNode);
+                measureNode.appendChild(directionNode);
+
+            } else if (measureLexElem.type == "diminuendo") {
+                let directionNode = xmlDoc.createElement("direction");
+                let directionTypeNode = xmlDoc.createElement("direction-type");
+                let wedgeNode = xmlDoc.createElement("wedge");
+                let offsetNode = xmlDoc.createElement("offset");
+                
+                let offsetAmount = measureLexElem.value.substring(1,measureLexElem.length);
+                offsetNode.innerHTML = offsetAmount;
+
+                directionNode.setAttribute("placement","above");
+                wedgeNode.setAttribute("default-y","20");
+                wedgeNode.setAttribute("type","diminuendo");
+                directionTypeNode.appendChild(wedgeNode);
+                directionNode.appendChild(directionTypeNode);
+                directionNode.appendChild(offsetNode);
+                measureNode.appendChild(directionNode);
             } else if (measureLexElem.type == "chord") {
                 if (oddChordFound) {
                     oddChordFound = false;

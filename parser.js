@@ -1,4 +1,4 @@
-var musicXML = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd"><score-partwise version="3.1"><work><work-number>Unknown</work-number><work-title>Untitled</work-title></work><part-list></part-list></score-partwise>'
+var musicXML = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd"><score-partwise version="3.1"><work><work-number>Unknown</work-number><work-title>Untitled</work-title></work><defaults><scaling><millimeters>6.35</millimeters><tenths>40</tenths></scaling><page-layout><page-height>1760</page-height><page-width>1360</page-width><page-margins type="both"><left-margin>80</left-margin><right-margin>80</right-margin><top-margin>80</top-margin><bottom-margin>80</bottom-margin></page-margins></page-layout><system-layout><system-margins><left-margin>0</left-margin><right-margin>0</right-margin></system-margins><system-distance>130</system-distance><top-system-distance>70</top-system-distance></system-layout><staff-layout><staff-distance>80</staff-distance></staff-layout><appearance><line-width type="stem">0.8333</line-width><line-width type="beam">5</line-width><line-width type="staff">1.25</line-width><line-width type="light barline">1.875</line-width><line-width type="heavy barline">5</line-width><line-width type="leger">1.875</line-width><line-width type="ending">1.25</line-width><line-width type="wedge">0.8333</line-width><line-width type="enclosure">1.25</line-width><line-width type="tuplet bracket">0.8333</line-width><note-size type="grace">60</note-size><note-size type="cue">60</note-size><distance type="hyphen">100</distance><distance type="beam">8</distance></appearance><music-font font-family="Maestro,engraved" font-size="18"/><word-font font-family="Times New Roman" font-size="9"/><lyric-font font-family="Times New Roman" font-size="10"/></defaults><part-list></part-list></score-partwise>'
 var xmlParser = new DOMParser();
 var xmlDoc = xmlParser.parseFromString(musicXML,"application/xml");
 
@@ -32,7 +32,15 @@ function isFutureMeasureMeta(c) {
     return /\$[0-9]{1}\/[0-9]{1},\s*[ABCDEF]{1}[b#]{0,1}[mM]{1}\$/.test(c);
 }
 function isNote(c) {
-    return /\([ABCDEFGR]{1}[b#]{0,1},\s*[0-9]+,\s*[01]{1},\s*[a-z]+\)/.test(c);
+    return /[-]{0,1}\([ABCDEFGR]{1}[b#]{0,1},\s*[0-9]+,\s*[01]{1},\s*[a-z]+\)[-]{0,1}/.test(c);
+}
+
+function isCrescendo(c) {
+    return /<[0-9]{2}/.test(c);
+}
+
+function isDiminuendo(c) {
+    return />[0-9]{2}/.test(c);
 }
 
 function isNoteHeader(c) {
@@ -107,8 +115,21 @@ function getMeasureData(input) {
             c = "";
             i++;
             console.log(c);
+        } else if (isCrescendo(c)) {
+            measureData = addToken(measureData,{type:"crescendo",value:c});
+            c = "";
+            i++;
+            console.log(c);
+        } else if (isDiminuendo(c)) {
+            measureData = addToken(measureData,{type:"diminuendo",value:c});
+            c = "";
+            i++;
+            console.log(c);
         } else if (isNote(c)) {
             console.log("hit isnote");
+            if (input[i+1] == "-") {
+                c+=input[++i];
+            }
             if (!isInChord) {
                 measureData = addToken(measureData,{type:"note",value:c});
                 // advance();
@@ -116,7 +137,7 @@ function getMeasureData(input) {
                 i++;
                 console.log(c);
             } else {
-                chords = addToken(chords,{type:"note",value:/\([ABCDEFGR]{1}[b#]{0,1},\s*[0-9]+,\s*[01]{1},\s*[a-z]+\)/.exec(c)[0]});
+                chords = addToken(chords,{type:"note",value:/[-]{0,1}\([ABCDEFGR]{1}[b#]{0,1},\s*[0-9]+,\s*[01]{1},\s*[a-z]+[-]{0,1}\)/.exec(c)[0]});
                 // advance();
                 c = "";
                 i++;
@@ -210,7 +231,7 @@ function lex(input) {
 var glob_tokens;
 
 function parse_and_evaluate() {
-    musicXML = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd"><score-partwise version="3.1"><work><work-number>Unknown</work-number><work-title>Untitled</work-title></work><part-list></part-list></score-partwise>'
+    musicXML = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd"><score-partwise version="3.1"><work><work-number>Unknown</work-number><work-title>Untitled</work-title></work><defaults><scaling><millimeters>6.35</millimeters><tenths>40</tenths></scaling><page-layout><page-height>1760</page-height><page-width>1360</page-width><page-margins type="both"><left-margin>80</left-margin><right-margin>80</right-margin><top-margin>80</top-margin><bottom-margin>80</bottom-margin></page-margins></page-layout><system-layout><system-margins><left-margin>0</left-margin><right-margin>0</right-margin></system-margins><system-distance>130</system-distance><top-system-distance>70</top-system-distance></system-layout><staff-layout><staff-distance>80</staff-distance></staff-layout><appearance><line-width type="stem">0.8333</line-width><line-width type="beam">5</line-width><line-width type="staff">1.25</line-width><line-width type="light barline">1.875</line-width><line-width type="heavy barline">5</line-width><line-width type="leger">1.875</line-width><line-width type="ending">1.25</line-width><line-width type="wedge">0.8333</line-width><line-width type="enclosure">1.25</line-width><line-width type="tuplet bracket">0.8333</line-width><note-size type="grace">60</note-size><note-size type="cue">60</note-size><distance type="hyphen">100</distance><distance type="beam">8</distance></appearance><music-font font-family="Maestro,engraved" font-size="18"/><word-font font-family="Times New Roman" font-size="9"/><lyric-font font-family="Times New Roman" font-size="10"/></defaults><part-list></part-list></score-partwise>'
     xmlParser = new DOMParser();
     xmlDoc = xmlParser.parseFromString(musicXML,"application/xml");
     let text = document.getElementById("music_markdown_textarea").value;
