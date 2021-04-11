@@ -32,7 +32,11 @@ function isFutureMeasureMeta(c) {
     return /\$[0-9]{1}\/[0-9]{1},\s*[ABCDEF]{1}[b#]{0,1}[mM]{1}\$/.test(c);
 }
 function isNote(c) {
-    return /[-]{0,1}\([ABCDEFGR]{1}[b#]{0,1},\s*[0-9]+,\s*[01]{1},\s*[a-z]+\)[-]{0,1}/.test(c);
+    return /[-]{0,1}\([ABCDEFGR]{1}[b#]{0,1},\s*[0-9]+,\s*[01]{1},\s*[a-z0-9]+\)[-]{0,1}/.test(c);
+}
+
+function isRepeat(c) {
+    return c == ":";
 }
 
 function isCrescendo(c) {
@@ -125,6 +129,11 @@ function getMeasureData(input) {
             c = "";
             i++;
             console.log(c);
+        } else if (isRepeat(c)) {
+            measureData = addToken(measureData,{type:"repeat",value:c});
+            c = "";
+            i++;
+            console.log(c);
         } else if (isNote(c)) {
             console.log("hit isnote");
             if (input[i+1] == "-") {
@@ -137,7 +146,7 @@ function getMeasureData(input) {
                 i++;
                 console.log(c);
             } else {
-                chords = addToken(chords,{type:"note",value:/[-]{0,1}\([ABCDEFGR]{1}[b#]{0,1},\s*[0-9]+,\s*[01]{1},\s*[a-z]+[-]{0,1}\)/.exec(c)[0]});
+                chords = addToken(chords,{type:"note",value:/[-]{0,1}\([ABCDEFGR]{1}[b#]{0,1},\s*[0-9]+,\s*[01]{1},\s*[a-z0-9]+[-]{0,1}\)/.exec(c)[0]});
                 // advance();
                 c = "";
                 i++;
@@ -248,6 +257,8 @@ function parse_and_evaluate() {
     currentChord = "";
     firstNote = false;
     oddChordFound = false;
+    openRepeat = false;
+    prevNoteInMeasure = "";
     // glob_tokens = tokens;
     console.log(tokens)
     xmlDoc = evaluate(tokens);

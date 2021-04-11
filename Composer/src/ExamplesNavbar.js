@@ -120,9 +120,9 @@ export default function ExamplesNavbar(props) {
       return;
     }
 
-    if (createAccountPassword !== createAccountRetypePassword) setRetypeCorrect(true);
+    if (createAccountPassword === createAccountRetypePassword) setRetypeCorrect(true);
     else {
-      setAlertMessage('Failed create account. Retype empty.');
+      setAlertMessage('Failed create account. Passwords mismatch.');
       setAlertSeverity('error');
       setOpenAlert(true);
       return;
