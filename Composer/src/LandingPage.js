@@ -27,6 +27,9 @@ import ExamplesNavbar from './ExamplesNavbar.js';
 import Footer from './Footer.js';
 import axios from 'axios';
 import classnames from 'classnames';
+import { OpenSheetMusicDisplay as OSMD } from 'opensheetmusicdisplay';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 import './assets/scss/blk-design-system-react.scss?v=1.2.0';
 import './assets/demo/demo.css';
@@ -104,7 +107,7 @@ class LandingPage extends Component {
     this.setState({ showMusicSheet: true });
     try {
       var parsed = parse_and_evaluate(this.state.editorContent);
-      console.log(parsed);
+      // console.log(parsed);
       if (!parsed.startsWith('<?xml')) return;
       // this.setState({ sheetContent: '' }, () => {
       this.setState({ sheetContent: parsed }, () => {
@@ -164,6 +167,10 @@ class LandingPage extends Component {
       .catch((err) => {
         console.log(err.message);
       });
+  }
+
+  downloadSheet() {
+    
   }
 
   changeSelected(e) {
@@ -338,13 +345,16 @@ class LandingPage extends Component {
                       <Row style={{ height: '75vh', padding: '1rem' }}>
                         <div style={{ background: '#fff', width: '100%', height: '75vh', overflow: 'auto' }}>
                           {/* <OpenSheetMusicDisplay file={'MuzioClementi_SonatinaOpus36No1_Part2.xml'} /> */}
-                          {this.state.showMusicSheet && <OpenSheetDisplay content={sheetContent} />}
+                          {this.state.showMusicSheet && <OpenSheetDisplay id='musicSheetSVG' content={sheetContent} />}
                         </div>
                       </Row>
                     </CardBody>
                     <CardFooter className='text-center'>
                       <Button className='btn-simple' color='success' onClick={() => this.refreshSheet()}>
                         Refresh
+                      </Button>
+                      <Button className='btn-simple' color='success' onClick={() => this.downloadSheet()}>
+                        Download
                       </Button>
                     </CardFooter>
                   </Card>

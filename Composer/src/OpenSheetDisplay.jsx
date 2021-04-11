@@ -83,16 +83,15 @@ class OpenSheetMusicDisplay extends Component {
     this.state = { dataReady: false };
     this.osmd = undefined;
     this.divRef = React.createRef();
-    this.xmlContent = localStorage.getItem('parsedResult');
-    if (this.xmlContent === null || this.xmlContent === undefined) {
-      this.xmlContent = '';
-    }
-    console.log(this.xmlContent);
+    // if (this.xmlContent === null || this.xmlContent === undefined) {
+    //   this.xmlContent = '';
+    // }
+    // console.log(this.xmlContent);
   }
 
   componentWillReceiveProps() {
     console.log('Sheet componenet updated');
-    console.log(this.props);
+    console.log(this.props.content);
   }
 
   async setupOsmd() {
@@ -105,6 +104,7 @@ class OpenSheetMusicDisplay extends Component {
     try {
       await this.osmd.load(this.props.content);
       await this.osmd.render();
+      console.log(this.osmd);
       // this.osmd.load(this.props.content).then(() => {
       //   try {
       //     this.osmd.render();
@@ -129,8 +129,10 @@ class OpenSheetMusicDisplay extends Component {
     } else {
       // this.osmd.load(process.env.PUBLIC_URL + '/' + this.props.file).then(() => this.osmd.render());
       try {
+        // console.log(this.props.content);
         await this.osmd.load(this.props.content);
-      await this.osmd.render();
+        await this.osmd.render();
+        console.log(this.osmd);
         // this.osmd.load(this.props.content).then(() => {
         //   try {
         //     this.osmd.render();
