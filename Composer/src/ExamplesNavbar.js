@@ -120,9 +120,9 @@ export default function ExamplesNavbar(props) {
       return;
     }
 
-    if (createAccountPassword !== createAccountRetypePassword) setRetypeCorrect(true);
+    if (createAccountPassword === createAccountRetypePassword) setRetypeCorrect(true);
     else {
-      setAlertMessage('Failed create account. Retype empty.');
+      setAlertMessage('Failed create account. Passwords mismatch.');
       setAlertSeverity('error');
       setOpenAlert(true);
       return;
@@ -177,9 +177,9 @@ export default function ExamplesNavbar(props) {
         setOpenAlert(true);
         setsignInFormModal(false);
         setLoginSuccess(true);
+        const now = new Date();
 
         if (remember) {
-          const now = new Date();
           const item = {
             email: signInEmail,
             password: sha256(signInPassword),
@@ -187,7 +187,12 @@ export default function ExamplesNavbar(props) {
           };
           localStorage.setItem('loginInfo', JSON.stringify(item));
         } else {
-          localStorage.removeItem('loginInfo');
+          const item = {
+            email: signInEmail,
+            password: sha256(signInPassword),
+            expiry: now.getTime(),
+          };
+          localStorage.setItem('loginInfo', JSON.stringify(item));
           setSignInEmail('');
           setSignInPassword('');
         }

@@ -436,7 +436,7 @@ class LandingPage extends Component {
                   <div style={{ width: '100%', padding: '1rem' }}>
                     <select class='form-control' id='exampleFormControlSelect1' onChange={this.changeSelected.bind(this)}>
                       {this.state.FileList.map((file) => (
-                        <option>{file}</option>
+                        <option style={{ color: 'black' }}>{file}</option>
                       ))}
                     </select>
                   </div>
