@@ -80,7 +80,7 @@ app.get('/login', async (req, res) => {
     .get(getOptions)
     .then((doc) => {
       let data = doc.data();
-      console.log('got data:', data.name);
+    //   console.log('got data:', data.name);
       if (data.password === password) {
         res.writeHead(200);
         res.end('Username and password found');
