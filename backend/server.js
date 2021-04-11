@@ -3,7 +3,7 @@ const Firestore = require('@google-cloud/firestore');
 const express = require('express');
 var cors = require('cors');
 const app = express();
-const port = 8080;
+const port = 5000;
 
 app.use(cors());
 
@@ -80,7 +80,6 @@ app.get('/login', async (req, res) => {
     .get(getOptions)
     .then((doc) => {
       let data = doc.data();
-      console.log('got data:', data.name);
       if (data.password === password) {
         res.writeHead(200);
         res.end('Username and password found');
