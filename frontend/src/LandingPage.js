@@ -5,8 +5,6 @@ import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/theme-monokai';
 import CustomRule from './Syntax';
 import OpenSheetDisplay from './OpenSheetDisplay';
-
-// core components
 import ExamplesNavbar from './ExamplesNavbar.js';
 import Footer from './Footer.js';
 
