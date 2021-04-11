@@ -25,6 +25,7 @@ import {
 import { Snackbar } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
 import sha256 from 'js-sha256';
+import axios from 'axios';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant='filled' {...props} />;
@@ -119,6 +120,9 @@ export default function ExamplesNavbar() {
     }
 
     // TODO: API
+    axios.get('http://localhost:8080/login', { params: { email: signInEmail, password: signInPassword } }).then((res) => {
+      console.log(res.data);
+    });
 
     setLoginInfo({
       email: signInEmail,

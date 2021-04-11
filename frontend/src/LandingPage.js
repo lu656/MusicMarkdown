@@ -6,6 +6,7 @@ import CustomRule from './Syntax';
 import OpenSheetDisplay from './OpenSheetDisplay';
 import ExamplesNavbar from './ExamplesNavbar.js';
 import Footer from './Footer.js';
+import axios from 'axios';
 
 import './assets/scss/blk-design-system-react.scss?v=1.2.0';
 import './assets/demo/demo.css';
@@ -76,7 +77,7 @@ class LandingPage extends Component {
           <div className='page-header'>
             {/* <img alt='...' className='path' src={require('./assets/img/blob.png').default} /> */}
             {/* <img alt='...' className='path2' src={require('./assets/img/path2.png').default} /> */}
-            <img alt='...' className='shapes triangle' src={require('./assets/img/triunghiuri.png').default} />
+            <img alt='...' className='shapes triangle' src={require('./img/triunghiuri.png').default} />
             {/* <img alt='...' className='shapes wave' src={require('./assets/img/waves.png').default} /> */}
             {/* <img alt='...' className='shapes squares' src={require('./assets/img/patrat.png').default} /> */}
             {/* <img alt='...' className='shapes circle' src={require('./assets/img/cercuri.png').default} /> */}
@@ -103,7 +104,7 @@ class LandingPage extends Component {
                   </div>
                 </Col>
                 <Col lg='4' md='5'>
-                  <img alt='...' className='img-fluid' src={require('./assets/img/etherum.png').default} />
+                  <img alt='...' className='img-fluid' src={require('./img/etherum.png').default} />
                 </Col>
               </Row>
             </div>
