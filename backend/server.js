@@ -40,21 +40,13 @@ function getSaveDataJSON(data) {
     let rawJSON;
     try {
         rawJSON = JSON.parse(data);
-        if (typeof (rawJSON.username) != "string") {
-            return null;
-        }
-
-        if (typeof (rawJSON.fileName) != "string") {
-            return null;
-        }
 
         if (typeof (rawJSON.data) != "string") {
+            console.log("File data not valid");
             return null;
         }
 
         return {
-            "username": rawJSON.username,
-            "fileName": rawJSON.fileName,
             "data": rawJSON.data
         };
     } catch (e) {
@@ -76,7 +68,7 @@ function getFileDataJSON(rawJSON) {
 
         return {
             "username": rawJSON.username,
-            "data": rawJSON.fileName
+            "fileName": rawJSON.fileName
         }
     } catch (e) {
         return null;
@@ -139,26 +131,40 @@ app.get('/login', async (req, res) => {
 });
 
 
-app.post('/save', (req, res) => {
-    req.on('data', async function (data) {
-        let dataJSON = getSaveDataJSON(data);
+app.post('/save', async (req, res) => {
+    let dataJSON = getFileDataJSON(req.query);
 
-        if (dataJSON == null) {
+    if (dataJSON == null) {
+        res.writeHead(400);
+        console.log("Bad request");
+        res.end("");
+        return;
+    }
+
+    req.on('data', async data => {
+        let saveDataJSON = getSaveDataJSON(data);
+
+        if (saveDataJSON == null) {
             res.writeHead(400);
-            console.log("Bad Request");
+            console.log("Bad request");
+            res.end("");
             return;
         }
 
         const docRef = db.collection('users').doc(dataJSON.username);
-        let docJSON = {
-            "data": dataJSON.data
+
+        try {
+            let changes = {};
+            changes['files.' + dataJSON.fileName] = saveDataJSON.data;
+            await docRef.update(changes);
+        } catch (e) {
+            console.log("Error with update");
+            res.writeHead(400);
+            res.end("");
         }
-        console.log(dataJSON);
-        fileJSON = {};
-        fileJSON[dataJSON.fileName] = docJSON;
-        await docRef.update(fileJSON);
 
         res.writeHead(200);
+        res.end("");
     });
 });
 
@@ -169,38 +175,43 @@ app.get('/getFile', async (req, res) => {
 
     if (dataJSON == null) {
         res.writeHead(400);
-        console.log("Bd request");
+        res.end("");
+        console.log("Bad request");
         return;
     }
 
     // if they give empty file name, return list of file names
     if (dataJSON.fileName == "") {
-        const snapshot = await db.collection('users').doc(dataJSON.username).get();
+        const doc = await db.collection('users').doc(dataJSON.username).get();
         let filesJSON = {
             "files": []
         };
-        console.log(snapshot);
-        snapshot.forEach((file) => {
-            filesJSON.files.append(file.id);
-        });
+
         res.writeHead(200);
-        res.end(filesJSON);
-    } else { // otherwise, return data from requested file
-        let doc = await db.collection('users').doc(dataJSON.username).get();
-        let fileList = doc.data().files;
-        let fileJSON = {
-            "fileName": dataJSON.fileName,
-            "data": ""
-        }
-        console.log(doc.data());
-        res.writeHead(200);
-        for (let fileName in fileList) {
-            console.log(fileName, dataJSON.fileName);
-            if (fileName == dataJSON.fileName) {
-                res.send(fileList[fileName]);
-                return;
+
+        if (doc.data() != undefined) {
+            for (fileName in doc.data().files) {
+                filesJSON.files.push(fileName);
             }
         }
+
+        res.end(JSON.stringify(filesJSON));
+    } else { // otherwise, return data from requested file
+        let doc = await db.collection('users').doc(dataJSON.username).get();
+
+        res.writeHead(200);
+
+        if (doc.data() != undefined) {
+            let fileList = doc.data().files;
+            for (let fileName in fileList) {
+                if (fileName == dataJSON.fileName) {
+                    res.end(fileList[fileName]);
+                    return;
+                }
+            }
+        }
+
+        res.end("");
     }
 });
 
