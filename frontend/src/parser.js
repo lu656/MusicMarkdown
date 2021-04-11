@@ -5,6 +5,8 @@ var musicXML =
 var xmlParser = new DOMParser();
 export var xmlDoc = xmlParser.parseFromString(musicXML, 'application/xml');
 
+console.log(musicXML);
+
 function isTitle(c) {
   return /title=[a-zA-Z0-9\- ]+/.test(c);
 }
@@ -18,39 +20,42 @@ function isInstrumentHeader(c) {
 }
 
 function isInstrumentFooter(c) {
-  return c === '}';
+  return c == '}';
 }
 
 function isMeasure(c) {
-  return c[0] === '|';
+  return c[0] == '|';
 }
 
 function isMeasureMeta(c) {
   return /\$[TB]{1},\s*[0-9]{1}\/[0-9]{1},\s*[ABCDEF]{1}[b#]{0,1}[mM]{1}\$/.test(c);
 }
 
+function isFutureMeasureMeta(c) {
+  return /\$[0-9]{1}\/[0-9]{1},\s*[ABCDEF]{1}[b#]{0,1}[mM]{1}\$/.test(c);
+}
 function isNote(c) {
-  return /\([ABCDEF]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.test(c);
+  return /\([ABCDEFGR]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.test(c);
 }
 
 function isNoteHeader(c) {
-  return c === '(';
+  return c == '(';
 }
 
 function isNoteFooter(c) {
-  return c === ')';
+  return c == ')';
 }
 
 function isChordHeader(c) {
-  return c === '[';
+  return c == '[';
 }
 
 function isChordFooter(c) {
-  return c === ']';
+  return c == ']';
 }
 
 // function isTie(c) {
-//     return c ==='-';
+//     return c == '-';
 // }
 
 function isWhitespace(c) {
@@ -58,7 +63,7 @@ function isWhitespace(c) {
 }
 
 function isNewline(c) {
-  return c === '\n';
+  return c == '\n';
 }
 
 function getMeasureData(input) {
@@ -79,7 +84,7 @@ function getMeasureData(input) {
 
   while (i < input.length) {
     // console.log(c);
-    if (input[i] === ' ') {
+    if (input[i] == ' ') {
       i++;
       continue;
     }
@@ -100,7 +105,13 @@ function getMeasureData(input) {
       c = '';
       i++;
       console.log(c);
+    } else if (isFutureMeasureMeta(c)) {
+      measureData = addToken(measureData, { type: 'futureMeasureMeta', value: c });
+      c = '';
+      i++;
+      console.log(c);
     } else if (isNote(c)) {
+      console.log('hit isnote');
       if (!isInChord) {
         measureData = addToken(measureData, { type: 'note', value: c });
         // advance();
@@ -108,7 +119,7 @@ function getMeasureData(input) {
         i++;
         console.log(c);
       } else {
-        chords = addToken(chords, { type: 'note', value: /\([ABCDEF]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.exec(c)[0] });
+        chords = addToken(chords, { type: 'note', value: /\([ABCDEFGR]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.exec(c)[0] });
         // advance();
         c = '';
         i++;
@@ -180,7 +191,7 @@ function lex(input) {
           staveNum++;
           measureData = getMeasureData(line);
           measures = addToken(measures, { type: 'measure', value: measureData, staveNum: staveNum, measureNum: measureNum });
-        } else if (line === '' && isInInstrument === true) {
+        } else if (line == '' && isInInstrument == true) {
           console.log('hit');
           staveNum = 0;
           measureNum++;
@@ -197,27 +208,20 @@ function lex(input) {
 
 var glob_tokens;
 
-export function parse_and_evaluate(text) {
-  console.log(text);
-  let tokens = lex(text);
+export function parse_and_evaluate(str) {
+  musicXML =
+    '<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd"><score-partwise version="3.1"><work><work-number>Unknown</work-number><work-title>Untitled</work-title></work><part-list></part-list></score-partwise>';
+  xmlParser = new DOMParser();
+  xmlDoc = xmlParser.parseFromString(musicXML, 'application/xml');
+  // let text = document.getElementById('music_markdown_textarea').value;
+  let tokens = lex(str);
+  // glob_tokens = tokens;
   console.log(tokens);
-  let xmlDoc = evaluate(tokens);
+  xmlDoc = evaluate(tokens);
   let xmlserializer = new XMLSerializer();
   return xmlserializer.serializeToString(xmlDoc);
+  // return tokens;
 }
-
-// function parse_and_evaluate() {
-//   let text = document.getElementById('music_markdown_textarea').value;
-//   let tokens = lex(text);
-//   // glob_tokens = tokens;
-//   console.log(tokens);
-//   let xmlDoc = evaluate(tokens);
-//   musicXMLTextBox = document.getElementById('music_xml_textarea');
-//   musicXMLTextBox.disabled = false;
-//   let xmlserializer = new XMLSerializer();
-//   musicXMLTextBox.innerHTML = xmlserializer.serializeToString(xmlDoc);
-//   // return tokens;
-// }
 
 // console.log(isMeasureMeta("$T, 4/4, Am$"));
 

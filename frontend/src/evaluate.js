@@ -34,9 +34,14 @@ var getFifths = {
 };
 
 var maxStave = 0;
+var lastMeasureNumber = 0;
+
+var initializedAttributes = false;
+var lastTimeSig = '';
+var lastKey = '';
 
 export function evaluate(lexedInfo) {
-  let lastMeasureNumber = 0;
+  lastMeasureNumber = 0;
   function handleNote(note, isChord, staffNo) {
     let noteElem = xmlDoc.createElement('note');
 
@@ -49,6 +54,10 @@ export function evaluate(lexedInfo) {
     console.log(noteData);
 
     let markdownNote = noteData[0].substring(0, 1);
+    let isRest = false;
+    if (markdownNote === 'R') {
+      isRest = true;
+    }
     let mardownAlter = noteData[0].substring(1, 2);
     let markdownOctave = noteData[1];
     let markdownDuration = noteData[2];
@@ -58,13 +67,17 @@ export function evaluate(lexedInfo) {
     let stepElem = xmlDoc.createElement('step');
     let alterElem = xmlDoc.createElement('alter');
     let octaveElem = xmlDoc.createElement('octave');
-    let durationElem = xmlDoc.createElement('duration');
     let typeElem = xmlDoc.createElement('type');
+    let durationElem = xmlDoc.createElement('duration');
+    if (isRest) {
+      var restElem = xmlDoc.createElement('rest');
+      restElem.setAttribute('measure', 'yes');
+    }
 
     stepElem.innerHTML = markdownNote;
-    if (mardownAlter ==='b') {
+    if (mardownAlter == 'b') {
       alterElem.innerHTML = '-1';
-    } else if (mardownAlter ==='#') {
+    } else if (mardownAlter == '#') {
       alterElem.innerHTML = '1';
     }
 
@@ -77,6 +90,11 @@ export function evaluate(lexedInfo) {
     pitchElem.appendChild(alterElem);
     pitchElem.appendChild(octaveElem);
 
+    if (isRest) {
+      noteElem.appendChild(restElem);
+      noteElem.appendChild(durationElem);
+      return noteElem;
+    }
     noteElem.appendChild(pitchElem);
     noteElem.appendChild(durationElem);
     noteElem.appendChild(typeElem);
@@ -92,16 +110,19 @@ export function evaluate(lexedInfo) {
   function handleMeasure(measure) {
     // let tempString = "";
     let measureNode = '';
-    if (measure.measureNum ===lastMeasureNumber) {
+    if (measure.measureNum == lastMeasureNumber) {
+      console.log('hit eq ' + lastMeasureNumber);
       let measureNodes = xmlDoc.getElementsByTagName('measure');
+      console.log(measureNodes.length);
       for (let i = 0; i < measureNodes.length; i++) {
         console.log(measureNodes[i].getAttribute('number') + ' ' + lastMeasureNumber);
-        if (measureNodes[i].getAttribute('number') ===lastMeasureNumber) {
+        if (measureNodes[i].getAttribute('number') == lastMeasureNumber) {
           measureNode = measureNodes[i];
           break;
         }
       }
     } else {
+      console.log('hit not eq');
       measureNode = xmlDoc.createElement('measure');
       measureNode.setAttribute('number', measure.measureNum);
     }
@@ -110,11 +131,11 @@ export function evaluate(lexedInfo) {
     // let staveElem = xmlDoc.createElement("staves");
     for (let i = 0; i < measureLexElems.length; i++) {
       var measureLexElem = measureLexElems[i];
-      if (measure.measureNum ===1 && i ===0 && measureLexElem.type != 'measureMeta') {
+      if (measure.measureNum == 1 && i == 0 && measureLexElem.type != 'measureMeta') {
         console.log(measure.measureNum, measureLexElem.type);
         throw 'Syntax Error';
       }
-      if (measureLexElem.type ==='measureMeta') {
+      if (measureLexElem.type == 'measureMeta') {
         let attributesElem = '';
         let staveElem = '';
         // will only be one element
@@ -134,10 +155,11 @@ export function evaluate(lexedInfo) {
         let markdownClef = measureMeta[0];
         let markdownTimeSig = measureMeta[1];
         let markdownKeySig = measureMeta[2];
+
         let xmlClef = '';
-        if (markdownClef ==='T') {
+        if (markdownClef == 'T') {
           xmlClef = 'G';
-        } else if (markdownClef ==='B') {
+        } else if (markdownClef == 'B') {
           xmlClef = 'F';
         } else {
           throw 'Syntax Error';
@@ -147,7 +169,7 @@ export function evaluate(lexedInfo) {
         if (measure.staveNum > maxStave) {
           staveElem.innerHTML = measure.staveNum;
         }
-        if (attributesElem.getElementsByTagName('staves').length ===0) {
+        if (attributesElem.getElementsByTagName('staves').length == 0) {
           attributesElem.appendChild(staveElem);
         }
 
@@ -160,13 +182,13 @@ export function evaluate(lexedInfo) {
         clefElem.appendChild(clefLineElem);
         attributesElem.appendChild(clefElem);
 
-        if (attributesElem.getElementsByTagName('divisions').length ===0) {
+        if (attributesElem.getElementsByTagName('divisions').length == 0) {
           let divisionsElem = xmlDoc.createElement('divisions');
-          divisionsElem.innerHTML = '1';
+          divisionsElem.innerHTML = '24';
           attributesElem.appendChild(divisionsElem);
         }
 
-        if (attributesElem.getElementsByTagName('time').length ===0) {
+        if (attributesElem.getElementsByTagName('time').length == 0) {
           let timeSigElem = xmlDoc.createElement('time');
           let beatsElem = xmlDoc.createElement('beats');
           let beatsTypeElem = xmlDoc.createElement('beats-type');
@@ -181,7 +203,7 @@ export function evaluate(lexedInfo) {
           attributesElem.appendChild(timeSigElem);
         }
 
-        if (attributesElem.getElementsByTagName('key').length ===0) {
+        if (attributesElem.getElementsByTagName('key').length == 0) {
           let keySigElem = xmlDoc.createElement('key');
           let fifthsElem = xmlDoc.createElement('fifths');
 
@@ -191,23 +213,65 @@ export function evaluate(lexedInfo) {
           attributesElem.appendChild(keySigElem);
         }
 
-        if (measureNode.getElementsByTagName('sttributes').length ===0) {
+        if (measureNode.getElementsByTagName('attributes').length == 0) {
           measureNode.insertBefore(attributesElem, measureNode.firstChild);
         }
-      } else if (measureLexElem.type ==='chord') {
+      } else if (measureLexElem.type == 'futureMeasureMeta') {
+        let attributesElem = '';
+        // will only be one element
+        console.log(measureNode);
+        let attributesElems = measureNode.getElementsByTagName('attributes');
+        if (attributesElems.length != 0) {
+          attributesElem = attributesElems[0];
+        } else {
+          attributesElem = xmlDoc.createElement('attributes');
+        }
+
+        let measureMeta = measureLexElem.value.substring(1, measureLexElem.value.length - 1).split(',');
+
+        let markdownTimeSig = measureMeta[0];
+        let markdownKeySig = measureMeta[1];
+
+        if (attributesElem.getElementsByTagName('time').length == 0) {
+          let timeSigElem = xmlDoc.createElement('time');
+          let beatsElem = xmlDoc.createElement('beats');
+          let beatsTypeElem = xmlDoc.createElement('beats-type');
+
+          let beatsLexData = markdownTimeSig.split('/');
+
+          beatsElem.innerHTML = beatsLexData[0];
+          beatsTypeElem.innerHTML = beatsLexData[1];
+
+          timeSigElem.appendChild(beatsElem);
+          timeSigElem.appendChild(beatsTypeElem);
+          attributesElem.appendChild(timeSigElem);
+        }
+
+        if (attributesElem.getElementsByTagName('key').length == 0) {
+          let keySigElem = xmlDoc.createElement('key');
+          let fifthsElem = xmlDoc.createElement('fifths');
+
+          fifthsElem.innerHTML = getFifths[markdownKeySig];
+
+          keySigElem.appendChild(fifthsElem);
+          attributesElem.appendChild(keySigElem);
+        }
+        if (measureNode.getElementsByTagName('attributes').length == 0) {
+          measureNode.insertBefore(attributesElem, measureNode.firstChild);
+        }
+      } else if (measureLexElem.type == 'chord') {
         let chordNotes = measureLexElem.value;
         console.log(chordNotes);
         for (let j = 0; j < chordNotes.length; j++) {
-          let firstNote = j ===0;
+          let firstNote = j == 0;
           let noteXML = handleNote(chordNotes[j].value, !firstNote, measure.staveNum);
           measureNode.appendChild(noteXML);
         }
-      } else if (measureLexElem.type ==='note') {
+      } else if (measureLexElem.type == 'note') {
         let noteXML = handleNote(measureLexElem.value, false, measure.staveNum);
         measureNode.appendChild(noteXML);
       }
     }
-    lastMeasureNumber = measure.measureNum;
     return measureNode;
   }
   function handleInstrument(instrument, partNum) {
@@ -232,8 +296,15 @@ export function evaluate(lexedInfo) {
 
     let measures = instrument.value;
     for (let i = 0; i < measures.length; i++) {
+      if (measures[i].measureNum == 2) {
+        initializedAttributes = true;
+      }
       let measureXML = handleMeasure(measures[i], false);
-      partMeasures.appendChild(measureXML);
+      if (measures[i].measureNum != lastMeasureNumber) {
+        console.log('appended');
+        partMeasures.appendChild(measureXML);
+        lastMeasureNumber = measures[i].measureNum;
+      }
     }
 
     return partMeasures;
@@ -241,17 +312,18 @@ export function evaluate(lexedInfo) {
 
   var instrumentNum = 0;
   for (var i = 0; i < lexedInfo.length; i++) {
-    if (lexedInfo[i].type ==='author') {
+    if (lexedInfo[i].type === 'author') {
       // curString += "<work-number>" + lexedInfo[i].value + "</work-title>";
 
       xmlDoc.getElementsByTagName('work-number')[0].innerHTML = lexedInfo[i].value.substring(7, lexedInfo[i].value.length);
-    } else if (lexedInfo[i].type ==='title') {
+    } else if (lexedInfo[i].type === 'title') {
       // curString += "<work-title>" + lexedInfo[i].value + "</work-title>";
       xmlDoc.getElementsByTagName('work-title')[0].innerHTML = lexedInfo[i].value.substring(6, lexedInfo[i].value.length);
     } else {
       instrumentNum++;
+      lastMeasureNumber = 0;
       // type is instrument
-      // if (curString ==="<work>") {
+      // if (curString === "<work>") {
       //     // no title/author provided
       //     curString += "<work-title>New Song</work-title></work>";
       // }

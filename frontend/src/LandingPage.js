@@ -1,5 +1,4 @@
 import React, { useRef, useState, Component } from 'react';
-import { Line } from 'react-chartjs-2';
 import { Button, Card, CardHeader, CardBody, CardFooter, CardTitle, ListGroupItem, ListGroup, Container, Row, Col } from 'reactstrap';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/theme-monokai';
@@ -8,6 +7,10 @@ import OpenSheetDisplay from './OpenSheetDisplay';
 import ExamplesNavbar from './ExamplesNavbar.js';
 import Footer from './Footer.js';
 
+import './assets/scss/blk-design-system-react.scss?v=1.2.0';
+import './assets/demo/demo.css';
+import './assets/css/nucleo-icons.css';
+
 import { parse_and_evaluate } from './parser';
 
 class LandingPage extends Component {
@@ -15,11 +18,17 @@ class LandingPage extends Component {
     super(props);
     console.log('Page Rerendered');
     localStorage.removeItem('parsedResult');
-    this.state = { sheetContent: '', editorContent: '' };
+    this.state = { sheetContent: '', editorContent: '', lastNewLine: false };
   }
 
   shouldComponentUpdate() {
     return false;
+  }
+
+  componentDidMount() {
+    const customRule = new CustomRule();
+    this.refs.aceEditor.editor.getSession().setMode(customRule);
+    this.refs.aceEditor.editor.setAutoScrollEditorIntoView(true);
   }
 
   editorOnChange(e) {
@@ -31,6 +40,7 @@ class LandingPage extends Component {
     console.log('Refreshing music sheet');
     try {
       var parsed = parse_and_evaluate(this.state.editorContent);
+      console.log(parsed);
       if (!parsed.startsWith('<?xml')) return;
       // this.setState({ sheetContent: '' }, () => {
       this.setState({ sheetContent: parsed }, () => {
@@ -38,7 +48,9 @@ class LandingPage extends Component {
         this.forceUpdate();
       });
       // });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   render() {
@@ -48,12 +60,12 @@ class LandingPage extends Component {
         <ExamplesNavbar />
         <div className='wrapper'>
           <div className='page-header'>
-            <img alt='...' className='path' src={require('./assets/img/blob.png').default} />
-            <img alt='...' className='path2' src={require('./assets/img/path2.png').default} />
+            {/* <img alt='...' className='path' src={require('./assets/img/blob.png').default} /> */}
+            {/* <img alt='...' className='path2' src={require('./assets/img/path2.png').default} /> */}
             <img alt='...' className='shapes triangle' src={require('./assets/img/triunghiuri.png').default} />
-            <img alt='...' className='shapes wave' src={require('./assets/img/waves.png').default} />
-            <img alt='...' className='shapes squares' src={require('./assets/img/patrat.png').default} />
-            <img alt='...' className='shapes circle' src={require('./assets/img/cercuri.png').default} />
+            {/* <img alt='...' className='shapes wave' src={require('./assets/img/waves.png').default} /> */}
+            {/* <img alt='...' className='shapes squares' src={require('./assets/img/patrat.png').default} /> */}
+            {/* <img alt='...' className='shapes circle' src={require('./assets/img/cercuri.png').default} /> */}
             <div className='content-center'>
               <Row className='row-grid justify-content-between align-items-center text-left'>
                 <Col lg='6' md='6'>

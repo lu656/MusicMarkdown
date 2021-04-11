@@ -26,7 +26,7 @@ export class CustomHighlightRules extends window.ace.acequire('ace/mode/text_hig
         },
         {
           token: 'keyword.operator',
-          regex: '(%)',
+          regex: '($)',
           push: 'main__4',
         },
         {
@@ -64,7 +64,7 @@ export class CustomHighlightRules extends window.ace.acequire('ace/mode/text_hig
         },
         {
           token: 'keyword.operator',
-          regex: '(%)',
+          regex: '($)',
           push: 'main__4',
         },
         {
@@ -102,7 +102,7 @@ export class CustomHighlightRules extends window.ace.acequire('ace/mode/text_hig
         },
         {
           token: 'keyword.operator',
-          regex: '(%)',
+          regex: '($)',
           push: 'main__4',
         },
         {
@@ -140,7 +140,7 @@ export class CustomHighlightRules extends window.ace.acequire('ace/mode/text_hig
         },
         {
           token: 'keyword.operator',
-          regex: '(%)',
+          regex: '($)',
           push: 'main__4',
         },
         {
@@ -154,16 +154,16 @@ export class CustomHighlightRules extends window.ace.acequire('ace/mode/text_hig
       main__4: [
         {
           token: 'keyword.operator',
-          regex: '(%)',
+          regex: '($)',
           next: 'pop',
         },
         {
           token: 'constant.character.escape',
-          regex: '(\\\\(?:\\\\|%))',
+          regex: '(\\\\(?:\\\\|$))',
         },
         {
           token: 'string.unquoted',
-          regex: '([^%\\\\]+)',
+          regex: '([^$\\\\]+)',
         },
         {
           token: 'keyword.operator',
@@ -186,7 +186,7 @@ export class CustomHighlightRules extends window.ace.acequire('ace/mode/text_hig
         },
         {
           token: 'keyword.operator',
-          regex: '(%)',
+          regex: '($)',
           push: 'main__4',
         },
         {

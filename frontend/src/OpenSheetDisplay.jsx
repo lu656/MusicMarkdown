@@ -106,7 +106,7 @@ class OpenSheetMusicDisplay extends Component {
   }
 
   resize() {
-    this.forceUpdate();
+    // this.forceUpdate();
   }
 
   componentWillUnmount() {
