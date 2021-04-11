@@ -32,7 +32,7 @@ function isFutureMeasureMeta(c) {
     return /\$[0-9]{1}\/[0-9]{1},\s*[ABCDEF]{1}[b#]{0,1}[mM]{1}\$/.test(c);
 }
 function isNote(c) {
-    return /\([ABCDEFG]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.test(c);
+    return /\([ABCDEFGR]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.test(c);
 }
 
 function isNoteHeader(c) {
@@ -116,7 +116,7 @@ function getMeasureData(input) {
                 i++;
                 console.log(c);
             } else {
-                chords = addToken(chords,{type:"note",value:/\([ABCDEFG]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.exec(c)[0]});
+                chords = addToken(chords,{type:"note",value:/\([ABCDEFGR]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.exec(c)[0]});
                 // advance();
                 c = "";
                 i++;
@@ -217,7 +217,7 @@ function parse_and_evaluate() {
     let tokens = lex(text);
     // glob_tokens = tokens;
     console.log(tokens)
-    let xmlDoc = evaluate(tokens);
+    xmlDoc = evaluate(tokens);
     musicXMLTextBox = document.getElementById("music_xml_textarea");
     musicXMLTextBox.disabled = false;
     let xmlserializer = new XMLSerializer();

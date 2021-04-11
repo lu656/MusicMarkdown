@@ -30,73 +30,17 @@ const Firestore = require('@google-cloud/firestore');
 const express = require('express');
 const app = express();
 const port = 8080;
-const server = http.createServer();
 
 const db = new Firestore({
 	projectId: 'musicmarkdown',
 	keyFilename: 'key.json'
 });
 
-async function handleLogin(req, res) {
-    // req.on('data', async)
-    // const docRef = db.collection('users').doc('alovelace');
-
-    // req.on('data', async function(data) {
-    // 	// console.log(JSON.parse(data));
-    // 	let body = JSON.parse(data);
-    // 	console.log(body);
-
-    // 	// await docRef.set(JSON.parse(data));
-    // })
-    // const queryObject = url.parse(req.url, true).query;
-    // console.log(queryObject);
-    // console.log((JSON.stringify(req.headers)))
-
-    let body = JSON.parse(JSON.stringify(req.headers))
-    let email = body['email'];
-    let password = body['password'];
-
-    let docRef = db.collection("users").doc(email);
-
-    var getOptions = {
-        source: 'server'
-    };
-
-    docRef.get(getOptions).then((doc) => {
-        let data = doc.data();
-        console.log('got data:', data.name);
-        if (data.password === password) {
-            res.writeHead(200);
-            res.end('Username and password found');
-        } else {
-            res.writeHead(401);
-            res.end('Invalid Username and Password');
-        }
-        return;
-    }).catch((error) => {
-        console.log('failed to get document', error);
-        res.writeHead(401);
-        res.end('Invalid Username and Password');
-        return;
-    });
-    // console.log(email);
-    // console.log(password)
-    // console.log(body)
-
-    // const snapshot = await db.collection('users').get();
-    // snapshot.forEach((doc) => {
-    // 	console.log(doc.id, '=>', doc.data());
-    // });
-
-    // res.writeHead(200);
-    // res.end('Data saved!');
-}
-
 function getSaveDataJSON(data) {
     let rawJSON;
     try {
         rawJSON = JSON.parse(data);
-        if (typeof(rawJSON.username) != "string") {
+        if (typeof (rawJSON.username) != "string") {
             return null;
         }
 
@@ -138,6 +82,62 @@ function getFileDataJSON(data) {
     }
 }
 
+app.get('/login', (req, res) => {
+    // req.on('data', async)
+    // const docRef = db.collection('users').doc('alovelace');
+
+    // req.on('data', async function(data) {
+    // 	// console.log(JSON.parse(data));
+    // 	let body = JSON.parse(data);
+    // 	console.log(body);
+
+    // 	// await docRef.set(JSON.parse(data));
+    // })
+    // const queryObject = url.parse(req.url, true).query;
+    // console.log(queryObject);
+    // console.log((JSON.stringify(req.headers)))
+
+    let body = req.query;
+    let email = body['email'];
+    let password = body['password'];
+
+    let docRef = db.collection("users").doc(email);
+
+    var getOptions = {
+        source: 'server'
+    };
+
+    docRef.get(getOptions).then((doc) => {
+        let data = doc.data();
+        console.log('got data:', data.name);
+        if (data.password === password) {
+            res.writeHead(200);
+            res.end('Username and password found');
+        } else {
+            res.writeHead(401);
+            res.end('Invalid Username and Password');
+        }
+        return;
+    }).catch((error) => {
+        console.log('failed to get document', error);
+        res.writeHead(401);
+        res.end('Invalid Username and Password');
+        return;
+    });
+    // console.log(email);
+    // console.log(password)
+    // console.log(body)
+
+    // const snapshot = await db.collection('users').get();
+    // snapshot.forEach((doc) => {
+    // 	console.log(doc.id, '=>', doc.data());
+    // });
+
+    // res.writeHead(200);
+    // res.end('Data saved!');
+});
+
+
 app.post('/save', (req, res) => {
     req.on('data', async function (data) {
         let dataJSON = getSaveDataJSON(data);
@@ -149,12 +149,13 @@ app.post('/save', (req, res) => {
         }
 
         const docRef = db.collection('users').doc(dataJSON.username);
-        let fileName = dataJSON.fileName;
         let docJSON = {
             "data": dataJSON.data
         }
         console.log(dataJSON);
-        await docRef.update({fileName: docJSON});
+        fileJSON = {};
+        fileJSON[dataJSON.fileName] = docJSON;
+        await docRef.update(fileJSON);
 
         res.writeHead(200);
     });
@@ -162,84 +163,78 @@ app.post('/save', (req, res) => {
 
 
 app.get('/getFile', (req, res) => {
-    req.on('data', async function (data) {
-        let dataJSON = getFileDataJSON(data);
+    let data = req.query;
+    let dataJSON = getFileDataJSON(data);
 
-        if (dataJSON == null) {
-            res.writeHead(400);
-            console.log("Bad request");
-            return;
+    if (dataJSON == null) {
+        res.writeHead(400);
+        console.log("Bd request");
+        return;
+    }
+
+    // if they give empty file name, return list of file names
+    if (dataJSON.fileName == "") {
+        const snapshot = await db.collection('users').doc(dataJSON.username).get();
+        let filesJSON = {
+            "files": []
+        };
+        snapshot.forEach((file) => {
+            filesJSON.files.append(file.id);
+        });
+        res.writeHead(200);
+        res.end(filesJSON);
+    } else { // otherwise, return data from requested file
+        const snapshot = await db.collection('users').doc(dataJSON.username).get();
+        let fileJSON = {
+            "fileName": data,
+            "data": ""
         }
-
-        // if they give empty file name, return list of file names
-        if (dataJSON.fileName == "") {
-            const snapshot = await db.collection('users').doc(dataJSON.username).get();
-            let filesJSON = {
-                "files": []
-            };
-            snapshot.forEach((file) => {
-                filesJSON.files.append(file.id);
-            });
-            res.writeHead(200);
-            res.end(filesJSON);
-        } else { // otherwise, return data from requested file
-            const snapshot = await db.collection('users').doc(dataJSON.username).get();
-            let fileJSON = {
-                "fileName": data,
-                "data": ""
+        snapshot.forEach((file) => {
+            if (file.id == data) {
+                fileJSON.data = data.data();
+                return;
             }
-            snapshot.forEach((file) => {
-                if (file.id == data) {
-                    fileJSON.data = data.data();
-                    return;
-                }
-            });
+        });
 
-            res.writeHead(200);
-            res.end(fileJSON);
-        }
+        res.writeHead(200);
+        res.end(fileJSON);
+    }
+});
+
+app.get('/createAccount', (req, res) => {
+    let body = req.query;
+    let email = body['email'];
+    let password = body['password'];
+
+    let docRef = db.collection("users").doc(email);
+
+    var getOptions = {
+        source: 'server'
+    };
+
+    docRef.get(getOptions).then((doc) => {
+        let data = doc.data();
+        console.log(data)
+        // if (data.password === password) {
+        res.writeHead(401);
+        res.end('Username already exists');
+        // } else {
+        // 	res.writeHead(401);
+        // 	res.end('Invalid Username and Password');
+        // }
+        return;
+    }).catch((error) => {
+        console.log('Username and password does not exist in database');
+        docRef = db.collection("users");
+        docRef.doc(email).set({
+            password: password,
+            projects: []
+        });
+        res.writeHead(200);
+        res.end("Successfully created account!");
     });
 });
 
-async function createAccount(req, res) {
-	let body = JSON.parse(JSON.stringify(req.headers))
-	let email = body['email'];
-	let password = body['password'];
-
-	let docRef = db.collection("users").doc(email);
-
-	var getOptions = {
-		source: 'server'
-	};
-
-	docRef.get(getOptions).then((doc) => {
-		let data = doc.data();
-		console.log(data)
-		// if (data.password === password) {
-		res.writeHead(401);
-		res.end('Username already exists');
-		// } else {
-		// 	res.writeHead(401);
-		// 	res.end('Invalid Username and Password');
-		// }
-		return;
-	}).catch((error) => {
-		console.log('Username and password does not exist in database');
-		docRef = db.collection("users");
-		docRef.doc(email).set({
-			password: password,
-			projects: []
-		});
-		res.writeHead(200);
-		res.end("Successfully created account!");
-	});
-
-}
-
-
-// server.on('request', handleLogin);
-// server.on('request', createAccount);
-// server.listen(8080);
 app.listen(port, () => {
     console.log("Server listening for requests.");
 });
