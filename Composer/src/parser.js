@@ -28,11 +28,11 @@ function isMeasure(c) {
 }
 
 function isMeasureMeta(c) {
-  return /\$[TB]{1},\s*[0-9]{1}\/[0-9]{1},\s*[ABCDEF]{1}[b#]{0,1}[mM]{1}\$/.test(c);
+  return /\$[TB]{1},\s*[0-9]{1}\/[0-9]{1},\s*[ABCDEFG]{1}[b#]{0,1}[mM]{1}\$/.test(c);
 }
 
 function isFutureMeasureMeta(c) {
-  return /\$[0-9]{1}\/[0-9]{1},\s*[ABCDEF]{1}[b#]{0,1}[mM]{1}\$/.test(c);
+  return /\$[0-9]{1}\/[0-9]{1},\s*[ABCDEFG]{1}[b#]{0,1}[mM]{1}\$/.test(c);
 }
 function isNote(c) {
   return /[-]{0,1}\([ABCDEFGR]{1}[b#]{0,1},\s*[0-9]+,\s*[01]{1},\s*[a-z0-9]+\)[-]{0,1}/.test(c);
