@@ -205,7 +205,7 @@ class LandingPage extends Component {
                 </div> */}
                   <div className='btn-wrapper'>
                     <div className='button-container'>
-                      <Button className='btn-icon btn-simple btn-round btn-neutral' color='default' href='https://github.com'>
+                      <Button className='btn-icon btn-simple btn-round btn-neutral' color='default' href='https://github.com/lu656/MusicMarkdown'>
                         <i className='fab fa-github' />
                       </Button>
                     </div>
@@ -224,41 +224,41 @@ class LandingPage extends Component {
             <Container>
               <Row className='justify-content-center'>
                 <Col lg='12'>
-                  <h1 className='text-center'>Your best benefit</h1>
+                  <h1 className='text-center'>About Composem</h1>
                   <Row className='row-grid justify-content-center'>
                     <Col lg='3'>
                       <div className='info'>
                         <div className='icon icon-primary'>
                           <i className='tim-icons icon-money-coins' />
                         </div>
-                        <h4 className='info-title'>Low Commission</h4>
+                        <h4 className='info-title'>Free</h4>
                         <hr className='line-primary' />
-                        <p>Divide details about your work into parts. Write a few lines about each one. A paragraph describing a feature will.</p>
+                        <p>Composem's features are not locked behind a paywall. We hope to encourage more aspiring musicians this way</p>
                       </div>
                     </Col>
                     <Col lg='3'>
                       <div className='info'>
                         <div className='icon icon-warning'>
-                          <i className='tim-icons icon-chart-pie-36' />
+                          <i className='tim-icons icon-app' />
                         </div>
-                        <h4 className='info-title'>High Incomes</h4>
+                        <h4 className='info-title'>Easy to Learn</h4>
                         <hr className='line-warning' />
                         <p>
-                          Divide details about your product or agency work into parts. Write a few lines about each one. A paragraph describing
-                          feature will be a feature.
+                          Unlike most other music sheet software, Composem is designed to be minimal and intuitive. It takes inspiration from other markdown
+                          languages, meaning that users have more power to create sheet music without a steep learning curve 
                         </p>
                       </div>
                     </Col>
                     <Col lg='3'>
                       <div className='info'>
                         <div className='icon icon-success'>
-                          <i className='tim-icons icon-single-02' />
+                          <i className='tim-icons icon-globe-2' />
                         </div>
-                        <h4 className='info-title'>Verified People</h4>
+                        <h4 className='info-title'>Accessible</h4>
                         <hr className='line-success' />
                         <p>
-                          Divide details about your product or agency work into parts. Write a few lines about each one. A paragraph describing be
-                          enough.
+                          With the power of Google Cloud, users can save their projects online, meaning that they can access then whenever, wherever they are.
+                          This eliminates the restriction of having only one device that is capable of creating sheet music
                         </p>
                       </div>
                     </Col>
@@ -275,7 +275,7 @@ class LandingPage extends Component {
                   <hr className='line-info' />
                   <h1>
                     {/* Choose the coin  */}
-                    Start generating <span className='text-info'>music sheet</span>
+                    Start generating <span className='text-info'>music sheets</span>
                   </h1>
                 </Col>
               </Row>
