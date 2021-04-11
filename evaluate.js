@@ -37,6 +37,10 @@ var lastMeasureNumber = 0;
 var initializedAttributes = false;
 var lastTimeSig = "";
 var lastKey = "";
+var currentVoice = 1;
+var currentChord = "";
+var firstNote = false;
+var oddChordFound = false;
 
 function evaluate(lexedInfo) {
     lastMeasureNumber = 0;
@@ -58,8 +62,31 @@ function evaluate(lexedInfo) {
         }
         let mardownAlter = noteData[0].substring(1,2);
         let markdownOctave = noteData[1];
-        let markdownDuration = noteData[2];
+        let markdownDot = noteData[2];
         let markdownType = noteData[3]; 
+
+        let markdownDuration = 0;
+        if (markdownType == "whole") {
+            markdownDuration = 24 * 4;
+        } else if (markdownType == "half") {
+            markdownDuration = 24 * 2;
+        } else if (markdownType == "quarter") {
+            markdownDuration = 24;
+        } else if (markdownType == "eighth") {
+            markdownDuration = 24 * 0.5;
+        } else if (markdownType == "sixteenth") {
+            markdownDuration = 24 * 0.25;
+        } else {
+            throw "Syntax Error";
+        }
+
+        if (markdownDot == 1) {
+            markdownDuration += (markdownDuration*0.5)
+        }
+
+        if (firstNote) {
+            currentChord = markdownType;
+        }
 
         let pitchElem = xmlDoc.createElement("pitch");
         let stepElem = xmlDoc.createElement("step");
@@ -99,6 +126,15 @@ function evaluate(lexedInfo) {
 
         if (isChord) {
             let chordElem = xmlDoc.createElement("chord");
+            if (markdownType != currentChord) {
+                if (oddChordFound == false) {
+                    oddChordFound = true;
+                    currentVoice++;
+                }
+                let voiceElem = xmlDoc.createElement("voice");
+                voiceElem.innerHTML = currentVoice;
+                noteElem.appendChild(voiceElem);
+            }
             noteElem.appendChild(chordElem);
         }
 
@@ -142,6 +178,11 @@ function evaluate(lexedInfo) {
                 if (attributesElems.length != 0) {
                     attributesElem = attributesElems[0];
                     staveElem = attributesElem.getElementsByTagName("staves")[0];
+                    let backupElem = xmlDoc.createElement("backup");
+                    let durElem = xmlDoc.createElement("duration");
+                    durElem.innerHTML = "300";
+                    backupElem.appendChild(durElem);
+                    measureNode.append(backupElem);
                 } else {    
                     attributesElem = xmlDoc.createElement("attributes");
                     staveElem = xmlDoc.createElement("staves");
@@ -259,12 +300,19 @@ function evaluate(lexedInfo) {
                     measureNode.insertBefore(attributesElem,measureNode.firstChild);
                 }
             } else if (measureLexElem.type == "chord") {
+                if (oddChordFound) {
+                    oddChordFound = false;
+                    // currentVoice++;
+                }
+                currentChord = "";
                 let chordNotes = measureLexElem.value
                 console.log(chordNotes);
+
                 for (let j = 0; j < chordNotes.length; j++) {
-                    let firstNote = j==0;
+                    firstNote = j==0;
                     let noteXML = handleNote(chordNotes[j].value,!firstNote,measure.staveNum);
                     measureNode.appendChild(noteXML);
+                    firstNote = false;
                 }
             } else if (measureLexElem.type == "note") {
                 let noteXML = handleNote(measureLexElem.value,false,measure.staveNum);
