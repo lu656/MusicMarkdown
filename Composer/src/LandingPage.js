@@ -28,7 +28,7 @@ import Footer from './Footer.js';
 import axios from 'axios';
 import classnames from 'classnames';
 import { OpenSheetMusicDisplay as OSMD } from 'opensheetmusicdisplay';
-import html2canvas from 'html2canvas';
+// import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 import './assets/scss/blk-design-system-react.scss?v=1.2.0';
@@ -170,7 +170,22 @@ class LandingPage extends Component {
   }
 
   downloadSheet() {
-    
+    let saveSvg = function(svgEl, name) {
+      svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      var svgData = svgEl.outerHTML;
+      var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+      var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
+      var svgUrl = URL.createObjectURL(svgBlob);
+      // return svgUrl;
+      var downloadLink = document.createElement("a");
+      downloadLink.href = svgUrl;
+      downloadLink.download = name;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+    let svgElem = document.getElementById("osmdSvgPage1");
+    saveSvg(svgElem,"mysheetmusic.svg");
   }
 
   changeSelected(e) {
