@@ -42,6 +42,8 @@ var currentVoice = 1;
 var currentChord = "";
 var firstNote = false;
 var oddChordFound = false;
+var openRepeat = false;
+var prevNoteInMeasure = "";
 
 function evaluate(lexedInfo) {
     lastMeasureNumber = 0;
@@ -88,7 +90,7 @@ function evaluate(lexedInfo) {
             markdownDuration = 24;
         } else if (markdownType == "eighth") {
             markdownDuration = 24 * 0.5;
-        } else if (markdownType == "sixteenth") {
+        } else if (markdownType == "16th") {
             markdownDuration = 24 * 0.25;
         } else {
             throw "Syntax Error";
@@ -140,6 +142,67 @@ function evaluate(lexedInfo) {
             notationsElem.appendChild(slurElem);
             noteElem.append(notationsElem);
         }
+        console.log(markdownType+" "+prevNoteInMeasure);
+        if (markdownType == prevNoteInMeasure) {
+            if (markdownType == "eighth") {
+                let beamElem = xmlDoc.createElement("beam");
+                beamElem.setAttribute("number","1");
+                beamElem.innerHTML = "continue";
+                noteElem.appendChild(beamElem);
+            } else if (markdownType == "16th") {
+                let beamElem1 = xmlDoc.createElement("beam");
+                let beamElem2 = xmlDoc.createElement("beam");
+                beamElem1.setAttribute("number","1");
+                beamElem2.setAttribute("number","2");
+                
+                beamElem1.innerHTML = "continue";
+                beamElem2.innerHTML = "continue";
+                noteElem.appendChild(beamElem1);
+                noteElem.appendChild(beamElem2);
+            }
+        } else {
+            if (markdownType == "eighth") {
+                let beamElem = xmlDoc.createElement("beam");
+                beamElem.setAttribute("number","1");
+                beamElem.innerHTML = "begin";
+                noteElem.appendChild(beamElem);
+            } else if (markdownType == "16th" && prevNoteInMeasure != "eighth") {
+                let beamElem1 = xmlDoc.createElement("beam");
+                let beamElem2 = xmlDoc.createElement("beam");
+                beamElem1.setAttribute("number","1");
+                beamElem2.setAttribute("number","2");
+                
+                beamElem1.innerHTML = "begin";
+                beamElem2.innerHTML = "begin";
+                noteElem.appendChild(beamElem1);
+                noteElem.appendChild(beamElem2);
+            } else if (markdownType == "16th" && prevNoteInMeasure == "eighth") {
+                let beamElem1 = xmlDoc.createElement("beam");
+                let beamElem2 = xmlDoc.createElement("beam");
+                beamElem1.setAttribute("number","1");
+                beamElem2.setAttribute("number","2");
+                
+                beamElem1.innerHTML = "continue";
+                beamElem2.innerHTML = "begin";
+                noteElem.appendChild(beamElem1);
+                noteElem.appendChild(beamElem2);
+            } else if (prevNoteInMeasure == "eighth") {
+                let beamElems = xmlDoc.getElementsByTagName("beam");
+                if (beamElems.length != 0) {
+                    let lastBeamElem = beamElems[beamElems.length - 1];
+                    lastBeamElem.innerHTML = "end";
+                }
+            } else if (prevNoteInMeasure == "16th") {
+                let beamElems = xmlDoc.getElementsByTagName("beam");
+                if (beamElems.length != 0) {
+                    let lastBeamElem1 = beamElems[beamElems.length - 2];
+                    let lastBeamElem2 = beamElems[beamElems.length - 1];
+    
+                    lastBeamElem1.innerHTML = "end";
+                    lastBeamElem2.innerHTML = "end";
+                }
+            }
+        }
 
         let pitchElem = xmlDoc.createElement("pitch");
         let stepElem = xmlDoc.createElement("step");
@@ -190,6 +253,8 @@ function evaluate(lexedInfo) {
             }
             noteElem.appendChild(chordElem);
         }
+
+        prevNoteInMeasure = markdownType;
 
         return noteElem;
     }
@@ -394,6 +459,29 @@ function evaluate(lexedInfo) {
                 directionNode.appendChild(directionTypeNode);
                 directionNode.appendChild(offsetNode);
                 measureNode.appendChild(directionNode);
+            } else if (measureLexElem.type == "repeat") {
+                let barlineElem = xmlDoc.createElement("barline");
+                let repeatElem = xmlDoc.createElement("repeat");
+                let barStyleElem = xmlDoc.createElement("bar-style");
+                if (measure.staveNum != 1) {
+                    continue;
+                }
+                if (!openRepeat) {
+                    barlineElem.setAttribute("location","left");
+                    barStyleElem.innerHTML = "heavy-light";
+                    repeatElem.setAttribute("direction","forward");
+                    openRepeat = true;
+                } else {
+                    barlineElem.setAttribute("location","right");
+                    barStyleElem.innerHTML = "light-heavy";
+                    repeatElem.setAttribute("direction","backward");
+                    openRepeat = false;
+                }
+
+                barlineElem.appendChild(barStyleElem);
+                barlineElem.appendChild(repeatElem);
+                measureNode.appendChild(barlineElem);
+
             } else if (measureLexElem.type == "chord") {
                 if (oddChordFound) {
                     oddChordFound = false;
@@ -450,6 +538,7 @@ function evaluate(lexedInfo) {
                 lastStaveNumber = measures[i].staveNum;
             }
             
+            prevNoteInMeasure = "";
         }
 
         return partMeasures;
