@@ -219,6 +219,9 @@ app.get('/createAccount', async (req, res) => {
     let body = req.query;
     let email = body['email'];
     let password = body['password'];
+	console.log(body)
+	console.log(email);
+	console.log(password);
 
     let docRef = db.collection("users").doc(email);
 
@@ -226,27 +229,57 @@ app.get('/createAccount', async (req, res) => {
         source: 'server'
     };
 
-    docRef.get(getOptions).then((doc) => {
+	// var response; 
+	// docRef.get(getOptions, async (response, error) => {
+	// 	console.log(response);
+	// 	console.log(error);
+	// 	if (response) {
+	// 		res.writeHead(401);
+	// 		res.end('Username already exists');
+	// 	}
+	// 	if (error) {
+	// 		docRef = db.collection("users");
+	// 		console.log('password is', password)
+	// 		docRef.doc(email).set({
+	// 			password: password
+	// 			// projects: {}
+	// 		});
+	// 		res.writeHead(200);
+	// 		res.end("Successfully created account!");
+	// 	}
+	// });
+
+	let success = false;
+    await docRef.get(getOptions).then((doc) => {
         let data = doc.data();
-        console.log(data)
-        // if (data.password === password) {
-        res.writeHead(401);
-        res.end('Username already exists');
+        console.log(data.password)
+        // if (data.password == password) {
+		res.writeHead(401);
+		res.end('Username already exists');
+		// }
+		// console.log('here for whatever reason');
         // } else {
         // 	res.writeHead(401);
         // 	res.end('Invalid Username and Password');
         // }
-        return;
+        return true;
     }).catch((error) => {
+		success = true;
         console.log('Username and password does not exist in database');
-        docRef = db.collection("users");
-        docRef.doc(email).set({
-            password: password,
-            projects: []
-        });
-        res.writeHead(200);
-        res.end("Successfully created account!");
+		
     });
+	if (success) {
+		console.log(success)
+		docRef = db.collection("users");
+		console.log('password is', password)
+		docRef.doc(email).set({
+			password: password
+			// projects: {}
+		});
+		res.writeHead(200);
+		res.end("Successfully created account!");
+	}
+	
 });
 
 app.listen(port, () => {
