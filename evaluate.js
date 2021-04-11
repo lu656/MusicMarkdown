@@ -52,6 +52,10 @@ function evaluate(lexedInfo) {
         console.log(noteData);
 
         let markdownNote = noteData[0].substring(0,1);
+        let isRest = false;
+        if (markdownNote === "R") {
+            isRest = true;
+        }
         let mardownAlter = noteData[0].substring(1,2);
         let markdownOctave = noteData[1];
         let markdownDuration = noteData[2];
@@ -61,8 +65,12 @@ function evaluate(lexedInfo) {
         let stepElem = xmlDoc.createElement("step");
         let alterElem = xmlDoc.createElement("alter");
         let octaveElem = xmlDoc.createElement("octave");
-        let durationElem = xmlDoc.createElement("duration");
         let typeElem = xmlDoc.createElement("type");
+        let durationElem = xmlDoc.createElement("duration");
+        if (isRest) {
+            var restElem = xmlDoc.createElement("rest");
+            restElem.setAttribute("measure","yes");
+        }
         
         stepElem.innerHTML = markdownNote;
         if (mardownAlter == "b") {
@@ -80,6 +88,11 @@ function evaluate(lexedInfo) {
         pitchElem.appendChild(alterElem);
         pitchElem.appendChild(octaveElem);
 
+        if (isRest) {
+            noteElem.appendChild(restElem);
+            noteElem.appendChild(durationElem);
+            return noteElem;
+        }
         noteElem.appendChild(pitchElem);
         noteElem.appendChild(durationElem);
         noteElem.appendChild(typeElem);
