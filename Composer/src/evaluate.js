@@ -362,7 +362,7 @@ export function evaluate(lexedInfo) {
               if (attributesElem.getElementsByTagName("time").length == 0) {
                   let timeSigElem = xmlDoc.createElement("time");
                   let beatsElem = xmlDoc.createElement("beats");
-                  let beatsTypeElem = xmlDoc.createElement("beats-type");
+                  let beatsTypeElem = xmlDoc.createElement("beat-type");
 
                   let beatsLexData = markdownTimeSig.split("/");
 
@@ -406,7 +406,7 @@ export function evaluate(lexedInfo) {
               if (attributesElem.getElementsByTagName("time").length == 0) {
                   let timeSigElem = xmlDoc.createElement("time");
                   let beatsElem = xmlDoc.createElement("beats");
-                  let beatsTypeElem = xmlDoc.createElement("beats-type");
+                  let beatsTypeElem = xmlDoc.createElement("beat-type");
 
                   let beatsLexData = markdownTimeSig.split("/");
 
