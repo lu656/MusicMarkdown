@@ -28,8 +28,11 @@ function isMeasureMeta(c) {
     return /\$[TB]{1},\s*[0-9]{1}\/[0-9]{1},\s*[ABCDEF]{1}[b#]{0,1}[mM]{1}\$/.test(c);
 }
 
+function isFutureMeasureMeta(c) {
+    return /\$[0-9]{1}\/[0-9]{1},\s*[ABCDEF]{1}[b#]{0,1}[mM]{1}\$/.test(c);
+}
 function isNote(c) {
-    return /\([ABCDEF]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.test(c);
+    return /\([ABCDEFG]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.test(c);
 }
 
 function isNoteHeader(c) {
@@ -99,7 +102,13 @@ function getMeasureData(input) {
             c = "";
             i++;
             console.log(c);
+        } else if (isFutureMeasureMeta(c)) {
+            measureData = addToken(measureData,{type:"futureMeasureMeta",value:c});
+            c = "";
+            i++;
+            console.log(c);
         } else if (isNote(c)) {
+            console.log("hit isnote");
             if (!isInChord) {
                 measureData = addToken(measureData,{type:"note",value:c});
                 // advance();
@@ -107,7 +116,7 @@ function getMeasureData(input) {
                 i++;
                 console.log(c);
             } else {
-                chords = addToken(chords,{type:"note",value:/\([ABCDEF]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.exec(c)[0]});
+                chords = addToken(chords,{type:"note",value:/\([ABCDEFG]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.exec(c)[0]});
                 // advance();
                 c = "";
                 i++;
@@ -201,6 +210,9 @@ function lex(input) {
 var glob_tokens;
 
 function parse_and_evaluate() {
+    musicXML = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd"><score-partwise version="3.1"><work><work-number>Unknown</work-number><work-title>Untitled</work-title></work><part-list></part-list></score-partwise>'
+    xmlParser = new DOMParser();
+    xmlDoc = xmlParser.parseFromString(musicXML,"application/xml");
     let text = document.getElementById("music_markdown_textarea").value;
     let tokens = lex(text);
     // glob_tokens = tokens;
