@@ -228,8 +228,7 @@ export default function ExamplesNavbar(props) {
         <Container>
           <div className='navbar-translate'>
             <NavbarBrand to='/' id='navbar-brand' tag={Link}>
-              <span>MMD • </span>
-              Music Markdown
+              Composem
             </NavbarBrand>
             <UncontrolledTooltip placement='bottom' target='navbar-brand'>
               Designed to make sheet music accessible to everyone
@@ -250,7 +249,7 @@ export default function ExamplesNavbar(props) {
               <Row>
                 <Col className='collapse-brand' xs='8'>
                   <a href='#pablo' onClick={(e) => e.preventDefault()}>
-                    MMD • Music Markdown
+                    Composem
                   </a>
                 </Col>
                 <Col className='collapse-close text-right' xs='4'>

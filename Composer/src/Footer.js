@@ -26,7 +26,7 @@ export default function Footer() {
       <Container>
         <Row>
           <Col md='3'>
-            <h1 className='title'>MMD • Music Markdown</h1>
+            <h1 className='title'>Composem</h1>
           </Col>
           <Col md='6'></Col>
           <Col md='3'>
