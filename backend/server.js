@@ -148,12 +148,13 @@ app.post('/save', (req, res) => {
             return;
         }
 
-        const docRef = db.collection('users/' + dataJSON.username).doc(dataJSON.fileName);
+        const docRef = db.collection('users').doc(dataJSON.username);
+        let fileName = dataJSON.fileName;
         let docJSON = {
             "data": dataJSON.data
         }
         console.log(dataJSON);
-        await docRef.set(docJSON);
+        await docRef.update({fileName: docJSON});
 
         res.writeHead(200);
     });
@@ -172,7 +173,7 @@ app.get('/getFile', (req, res) => {
 
         // if they give empty file name, return list of file names
         if (dataJSON.fileName == "") {
-            const snapshot = await db.collection('users/' + dataJSON.username).get();
+            const snapshot = await db.collection('users').doc(dataJSON.username).get();
             let filesJSON = {
                 "files": []
             };
@@ -182,7 +183,7 @@ app.get('/getFile', (req, res) => {
             res.writeHead(200);
             res.end(filesJSON);
         } else { // otherwise, return data from requested file
-            const snapshot = await db.collection('users/' + dataJSON.username).get();
+            const snapshot = await db.collection('users').doc(dataJSON.username).get();
             let fileJSON = {
                 "fileName": data,
                 "data": ""
@@ -195,7 +196,7 @@ app.get('/getFile', (req, res) => {
             });
 
             res.writeHead(200);
-            red.end(fileJSON);
+            res.end(fileJSON);
         }
     });
 });
