@@ -271,8 +271,8 @@ app.get('/createAccount', async (req, res) => {
 		docRef = db.collection("users");
 		console.log('password is', password)
 		docRef.doc(email).set({
-			password: password
-			// projects: {}
+			password: password,
+			files: {"myFirstProject": "title=myFirstProject\nauthor=mmd"}
 		});
 		res.writeHead(200);
 		res.end("Successfully created account!");
