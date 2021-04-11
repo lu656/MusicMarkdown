@@ -170,7 +170,7 @@ class LandingPage extends Component {
   }
 
   downloadSheet() {
-    
+
   }
 
   changeSelected(e) {
@@ -203,7 +203,7 @@ class LandingPage extends Component {
                     We make generating sheet music <br />
                     <span className='text-white'>easy</span>
                   </h1>
-                  <p className='text-white mb-3'>Place Holder</p>
+                  <p className='text-white mb-3'>Compose without worries.</p>
                   {/* <div className='btn-wrapper mb-3'>
                   <p className='category text-success d-inline'>From 9.99%/mo</p>
                   <Button className='btn-link' color='success' href='#pablo' onClick={(e) => e.preventDefault()} size='sm'>
@@ -219,7 +219,7 @@ class LandingPage extends Component {
                   </div>
                 </Col>
                 <Col lg='4' md='5'>
-                  <img alt='...' className='img-fluid' src={require('./img/etherum.png').default} />
+                  <img alt='...' className='img-fluid' src={require('./assets/img/composem.png').default} />
                 </Col>
               </Row>
             </div>
