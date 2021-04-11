@@ -93,7 +93,7 @@ app.get('/login', async (req, res) => {
     let body = req.query;
     let email = body['email'];
     let password = body['password'];
-
+    console.log(body)
     let docRef = db.collection("users").doc(email);
 
     var getOptions = {
