@@ -18,11 +18,11 @@ function isInstrumentHeader(c) {
 }
 
 function isInstrumentFooter(c) {
-  return c ==='}';
+  return c === '}';
 }
 
 function isMeasure(c) {
-  return c[0] ==='|';
+  return c[0] === '|';
 }
 
 function isMeasureMeta(c) {
@@ -34,19 +34,19 @@ function isNote(c) {
 }
 
 function isNoteHeader(c) {
-  return c ==='(';
+  return c === '(';
 }
 
 function isNoteFooter(c) {
-  return c ===')';
+  return c === ')';
 }
 
 function isChordHeader(c) {
-  return c ==='[';
+  return c === '[';
 }
 
 function isChordFooter(c) {
-  return c ===']';
+  return c === ']';
 }
 
 // function isTie(c) {
@@ -58,7 +58,7 @@ function isWhitespace(c) {
 }
 
 function isNewline(c) {
-  return c ==='\n';
+  return c === '\n';
 }
 
 function getMeasureData(input) {
@@ -79,7 +79,7 @@ function getMeasureData(input) {
 
   while (i < input.length) {
     // console.log(c);
-    if (input[i] ===' ') {
+    if (input[i] === ' ') {
       i++;
       continue;
     }
@@ -180,7 +180,7 @@ function lex(input) {
           staveNum++;
           measureData = getMeasureData(line);
           measures = addToken(measures, { type: 'measure', value: measureData, staveNum: staveNum, measureNum: measureNum });
-        } else if (line ==='' && isInInstrument ===true) {
+        } else if (line === '' && isInInstrument === true) {
           console.log('hit');
           staveNum = 0;
           measureNum++;
@@ -198,6 +198,7 @@ function lex(input) {
 var glob_tokens;
 
 export function parse_and_evaluate(text) {
+  console.log(text);
   let tokens = lex(text);
   console.log(tokens);
   let xmlDoc = evaluate(tokens);

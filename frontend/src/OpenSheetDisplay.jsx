@@ -90,6 +90,11 @@ class OpenSheetMusicDisplay extends Component {
     console.log(this.xmlContent);
   }
 
+  componentWillReceiveProps() {
+    console.log('Sheet componenet updated');
+    console.log(this.props);
+  }
+
   setupOsmd() {
     const options = {
       autoResize: this.props.autoResize !== undefined ? this.props.autoResize : true,
@@ -97,11 +102,11 @@ class OpenSheetMusicDisplay extends Component {
     };
     this.osmd = new OSMD(this.divRef.current, options);
     // this.osmd.load(process.env.PUBLIC_URL + '/' + this.props.file).then(() => this.osmd.render());
-    this.osmd.load(this.xmlContent).then(() => this.osmd.render());
+    this.osmd.load(this.props.content).then(() => this.osmd.render());
   }
 
   resize() {
-    // this.forceUpdate();
+    this.forceUpdate();
   }
 
   componentWillUnmount() {
@@ -113,7 +118,7 @@ class OpenSheetMusicDisplay extends Component {
       this.setupOsmd();
     } else {
       // this.osmd.load(process.env.PUBLIC_URL + '/' + this.props.file).then(() => this.osmd.render());
-      this.osmd.load(this.xmlContent).then(() => this.osmd.render());
+      this.osmd.load(this.props.content).then(() => this.osmd.render());
     }
     window.addEventListener('resize', this.resize);
   }
