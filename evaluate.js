@@ -170,7 +170,8 @@ function evaluate(lexedInfo) {
                 console.log(measure.measureNum, measureLexElem.type);
                 throw "Syntax Error";
             }
-            if (lastStaveNumber != measure.staveNum) {
+            console.log(lastStaveNumber+" "+measure.staveNum);
+            if (lastStaveNumber != measure.staveNum && lastStaveNumber != 0 && measureNode.getElementsByTagName("backup").length == 0) {
                 let backupElem = xmlDoc.createElement("backup");
                 let durElem = xmlDoc.createElement("duration");
                 durElem.innerHTML = "300";
