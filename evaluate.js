@@ -1,4 +1,4 @@
-var getSharps = {
+var getFifths = {
     "CM": 0,
     "Am": 0,
     "GM": 1,
@@ -31,93 +31,235 @@ var getSharps = {
     "Abm": -7
 };
 
+var maxStave = 0;
+
 function evaluate(lexedInfo) {
-    function handleNote(note, staffNo) {
-        staffNo = "<staff>" + staffNo + "</staff>";
-        note = note.substring(1, note.length - 1);
-        note = note.split(' ');
-        let step = "<step>" + note[0].trim() +"</step>";
-        let octave = "<octave>" + note[1].trim() + "</octave>";
-        let duration = "<duration>" + note[2].trim() + "</duration>";
-        let noteType = "<type>" + note[3].trim() + "</type>";
-        return "<note><pitch>" + step + octave + "</pitch>" + duration + noteType + staffNo + "</note>";
-    }
-    function handleChord (chord, staffNo) {
-        let tempString = "";
-        for (let i = 0; i < chord.length; i++) {
-            let type = chord.type;
-            let note = chord.note;
-            tempString += handleNote(note, staffNo); 
-        }
-        return tempString;
-    }
-    function handleMeasure (measure, isPiano) {
-        let tempString = "";
-        for (let i = 0; i < measure.length; i++) {
-            let metadata = measure.measureMeta;
-            if (metadata.length) {
-                metadata = metadata.substring(1, metadata.length - 1);
-                metadata = metadata.split(",")
-                let clef = "<clef><sign>" + metadata[0].trim() + "</sign></clef>";
-                let timeSig = metadata[1].trim();
-                let keySig = "<key><fifths>" + getSharps[metadata[2].trim()] + "</fifths></key>";
-                tempString += "<attributes><divisions>1</divisions>";
-                timeSig = "<time><beats>" + timeSig.split("/")[0] + "</beats><beat-type>" + timeSig.split("/")[1] + "</beat-type>";
-                if (isPiano) {
-                    let temp = "";
-                    temp = "<clef><sign>G</sign><line>2</line><clef><sign>F</sign><line>2</line>";
-                    tempString += keySig + timeSig + tempString + "</attributes>";
-                } else {
-                    tempString += keySig + timeSig + clef + "</attributes>";
-                }
-            }
-            // let tie = measure.tie;
-            let chords = measure.chords;
-            let notes = measure.notes;
-            let staffNo = measure.staffNo;
-            if (chords.length) {
-                for (let j = 0; j < chords.length; j++) {
-                    tempString += handleChord(chords[j], staffNo);
-                }
-            }
-            if (notes.length) {
-                for (let j = 0; j < notes.length; j++) {
-                    tempString += handleNotes(notes[j], staffNo);
-                }
-            }
-            // if (tie.length) {
-            //     tempString += handleTie(tie)
-            // }
+    let lastMeasureNumber = 0;
+    function handleNote(note, isChord, staffNo) {
+        let noteElem = xmlDoc.createElement("note");
+
+        let staffElem = xmlDoc.createElement("staff");
+        staffElem.innerHTML = staffNo;
+
+        noteElem.appendChild(staffElem);
+
+        let noteData = note.substring(1, note.length - 1).split(",");
+        console.log(noteData);
+
+        let markdownNote = noteData[0].substring(0,1);
+        let mardownAlter = noteData[0].substring(1,2);
+        let markdownOctave = noteData[1];
+        let markdownDuration = noteData[2];
+        let markdownType = noteData[3]; 
+
+        let pitchElem = xmlDoc.createElement("pitch");
+        let stepElem = xmlDoc.createElement("step");
+        let alterElem = xmlDoc.createElement("alter");
+        let octaveElem = xmlDoc.createElement("octave");
+        let durationElem = xmlDoc.createElement("duration");
+        let typeElem = xmlDoc.createElement("type");
+        
+        stepElem.innerHTML = markdownNote;
+        if (mardownAlter == "b") {
+            alterElem.innerHTML = "-1";
+        } else if (mardownAlter == "#") {
+            alterElem.innerHTML = "1";
         }
 
+        octaveElem.innerHTML = markdownOctave;
+        durationElem.innerHTML = markdownDuration;
+        typeElem.innerHTML = markdownType;
+        // typeElem.innerHTML = "quarter";
+
+        pitchElem.appendChild(stepElem);
+        pitchElem.appendChild(alterElem);
+        pitchElem.appendChild(octaveElem);
+
+        noteElem.appendChild(pitchElem);
+        noteElem.appendChild(durationElem);
+        noteElem.appendChild(typeElem);
+
+        if (isChord) {
+            let chordElem = xmlDoc.createElement("chord");
+            noteElem.appendChild(chordElem);
+        }
+
+        return noteElem;
     }
-    function handleInstrument (instrument) {
+
+    function handleMeasure (measure) {
+        // let tempString = "";
+        let measureNode = "";
+        if (measure.measureNum == lastMeasureNumber) {
+            let measureNodes = xmlDoc.getElementsByTagName("measure");
+            for (let i = 0; i < measureNodes.length; i++) {
+                console.log(measureNodes[i].getAttribute("number")+" "+lastMeasureNumber);
+                if (measureNodes[i].getAttribute("number") == lastMeasureNumber) {
+                    measureNode = measureNodes[i];
+                    break;
+                }
+            }
+        } else {
+            measureNode = xmlDoc.createElement("measure");
+            measureNode.setAttribute("number",measure.measureNum);
+        }
+
+        let measureLexElems = measure.value;
+        // let staveElem = xmlDoc.createElement("staves");
+        for (let i = 0; i < measureLexElems.length; i++) {
+            measureLexElem = measureLexElems[i];
+            if (measure.measureNum == 1 && i == 0 && measureLexElem.type != "measureMeta") {
+                console.log(measure.measureNum, measureLexElem.type);
+                throw "Syntax Error";
+            }
+            if (measureLexElem.type == "measureMeta") {
+                let attributesElem = "";
+                let staveElem = "";
+                // will only be one element
+                console.log(measureNode);
+                let attributesElems = measureNode.getElementsByTagName("attributes");
+                if (attributesElems.length != 0) {
+                    attributesElem = attributesElems[0];
+                    staveElem = attributesElem.getElementsByTagName("staves")[0];
+                } else {    
+                    attributesElem = xmlDoc.createElement("attributes");
+                    staveElem = xmlDoc.createElement("staves");
+                }
+
+                console.log(attributesElem);
+                let measureMeta = measureLexElem.value.substring(1,measureLexElem.value.length - 1).split(",");
+                
+                let markdownClef = measureMeta[0];
+                let markdownTimeSig = measureMeta[1];
+                let markdownKeySig = measureMeta[2];
+                let xmlClef = "";
+                if (markdownClef == "T") {
+                    xmlClef = "G";
+                } else if (markdownClef == "B") {
+                    xmlClef = "F";
+                } else {
+                    throw "Syntax Error";
+                }
+                console.log(measure+" "+measure.staveNum);
+                let clefElem = xmlDoc.createElement("clef");
+                if (measure.staveNum > maxStave) {
+                    staveElem.innerHTML = measure.staveNum;
+                }
+                if (attributesElem.getElementsByTagName("staves").length == 0) {
+                    attributesElem.appendChild(staveElem);
+                }
+                
+                clefElem.setAttribute("number",measure.staveNum);
+                let clefSignElem = xmlDoc.createElement("sign");
+                clefSignElem.innerHTML = xmlClef;
+                let clefLineElem = xmlDoc.createElement("line");
+                clefLineElem.innerHTML = "2";
+                clefElem.appendChild(clefSignElem);
+                clefElem.appendChild(clefLineElem);
+                attributesElem.appendChild(clefElem);
+                
+                if (attributesElem.getElementsByTagName("divisions").length == 0) {
+                    let divisionsElem = xmlDoc.createElement("divisions");
+                    divisionsElem.innerHTML = "1";
+                    attributesElem.appendChild(divisionsElem);
+                }
+
+                if (attributesElem.getElementsByTagName("time").length == 0) {
+                    let timeSigElem = xmlDoc.createElement("time");
+                    let beatsElem = xmlDoc.createElement("beats");
+                    let beatsTypeElem = xmlDoc.createElement("beats-type");
+
+                    let beatsLexData = markdownTimeSig.split("/");
+
+                    beatsElem.innerHTML = beatsLexData[0];
+                    beatsTypeElem.innerHTML = beatsLexData[1];
+                    
+                    timeSigElem.appendChild(beatsElem);
+                    timeSigElem.appendChild(beatsTypeElem);
+                    attributesElem.appendChild(timeSigElem);
+                }
+
+                if (attributesElem.getElementsByTagName("key").length == 0) {
+                    let keySigElem = xmlDoc.createElement("key");
+                    let fifthsElem = xmlDoc.createElement("fifths");
+
+                    fifthsElem.innerHTML = getFifths[markdownKeySig];
+                    
+                    keySigElem.appendChild(fifthsElem);
+                    attributesElem.appendChild(keySigElem);
+                }
+                
+                if (measureNode.getElementsByTagName("sttributes").length == 0) {
+                    measureNode.insertBefore(attributesElem,measureNode.firstChild);
+                }
+            } else if (measureLexElem.type == "chord") {
+                let chordNotes = measureLexElem.value
+                console.log(chordNotes);
+                for (let j = 0; j < chordNotes.length; j++) {
+                    let firstNote = j==0;
+                    let noteXML = handleNote(chordNotes[j].value,!firstNote,measure.staveNum);
+                    measureNode.appendChild(noteXML);
+                }
+            } else if (measureLexElem.type == "note") {
+                let noteXML = handleNote(measureLexElem.value,false,measure.staveNum);
+                measureNode.appendChild(noteXML);
+            }
+        }
+        lastMeasureNumber = measure.measureNum;
+        return measureNode;
+
+    }
+    function handleInstrument (instrument,partNum) {
+        maxStave = 0;
         let tempString = "";
         let type = instrument.instrument;
-        let measures = instrument.measures;
-        for (let i = 0; i < instrument.length; i++) {
-            if (type === "piano"){
-                tempString += (handleMeasure(measures[i], true));
-            } else {
-                tempString += (handleMeasure(measures[i], false));
-            }
+        
+        let partList = xmlDoc.getElementsByTagName("part-list")[0];
+        
+        let scorePart = xmlDoc.createElement("score-part");
+        scorePart.id = "P"+partNum;
+
+        let partName = xmlDoc.createElement("part-name");
+        partName.innerHTML = type;
+
+        scorePart.appendChild(partName);
+        partList.appendChild(scorePart);
+
+        let partMeasures = xmlDoc.createElement("part");
+        partMeasures.id = scorePart.id;
+        xmlDoc.getElementsByTagName("score-partwise")[0].appendChild(partMeasures);
+
+        let measures = instrument.value;
+        for (let i = 0; i < measures.length; i++) {
+            let measureXML = handleMeasure(measures[i], false);
+            partMeasures.appendChild(measureXML);
         }
+
+        return partMeasures;
     }
-    var curString = "<work>";
+        
+    instrumentNum = 0;
     for (var i = 0; i < lexedInfo.length; i++) {
         if (lexedInfo[i].type === "author") {
-            curString += "<work-number>" + lexedInfo[i].value + "</work-title>";
+            // curString += "<work-number>" + lexedInfo[i].value + "</work-title>";
+
+            xmlDoc.getElementsByTagName("work-number")[0].innerHTML = lexedInfo[i].value.substring(7,lexedInfo[i].value.length);
         } else if (lexedInfo[i].type === "title") {
-            curString += "<work-title>" + lexedInfo[i].value + "</work-title>"; 
+            // curString += "<work-title>" + lexedInfo[i].value + "</work-title>";
+            xmlDoc.getElementsByTagName("work-title")[0].innerHTML = lexedInfo[i].value.substring(6,lexedInfo[i].value.length);; 
         } else {
+            instrumentNum++;
             // type is instrument
-            if (curString === "<work>") {
-                // no title/author provided
-                curString += "<work-title>New Song</work-title></work>";
-            }
-            for (let j = 0; j < lexedInfo[i].length; j++) {
-                curString += handleInstrument(lexedInfo[i][j]);
-            }
+            // if (curString === "<work>") {
+            //     // no title/author provided
+            //     curString += "<work-title>New Song</work-title></work>";
+            // }
+            // for (let j = 0; j < lexedInfo[i].value.length; j++) {
+            let instrumentXML = handleInstrument(lexedInfo[i],instrumentNum);
+            xmlDoc.getElementsByTagName("score-partwise")[0].appendChild(instrumentXML);
+            // }
         }
     }
+
+    return xmlDoc;
 }

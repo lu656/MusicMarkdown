@@ -44,6 +44,17 @@ a {
     outline: none;
 }
 
+#music_xml_textarea {
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+    border:solid 1px black;
+    padding:10px;
+}
+
+#music_xml_textarea:focus-visible {
+    outline: none;
+}
+
 #run_music_markdown {
     border-style: solid;
     border-color: white;
