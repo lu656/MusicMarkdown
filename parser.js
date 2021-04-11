@@ -1,4 +1,6 @@
-var musicXML = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">'
+var musicXML = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd"><score-partwise version="3.1"><work><work-number>Unknown</work-number><work-title>Untitled</work-title></work><part-list></part-list></score-partwise>'
+var xmlParser = new DOMParser();
+var xmlDoc = xmlParser.parseFromString(musicXML,"application/xml");
 
 console.log(musicXML);
 
@@ -27,7 +29,15 @@ function isMeasureMeta(c) {
 }
 
 function isNote(c) {
-    return /\([ABCDEF]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+\)/.test(c);
+    return /\([ABCDEF]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.test(c);
+}
+
+function isNoteHeader(c) {
+    return c == "(";
+}
+
+function isNoteFooter(c) {
+    return c == ")";
 }
 
 function isChordHeader(c) {
@@ -43,7 +53,7 @@ function isChordFooter(c) {
 // }
 
 function isWhitespace(c) {
-    return /\s/.test(c);
+    return /^\s+$/.test(c);
 }
 
 function isNewline(c) {
@@ -64,19 +74,30 @@ function getMeasureData(input) {
 
     chords = [];
     isInChord = false;
+    isInNote = false;
 
     while (i < input.length) {
         // console.log(c);
+        if (input[i] == " ") {
+            i++;
+            continue;
+        }
         c += input[i];
         console.log(c);
-        if (isWhitespace(c)) {
-            // advance();
-            c = "";
-            console.log(c);
-            i++;
-        } else if (isMeasureMeta(c)) {
+        // if (isWhitespace(c)) {
+        //     // advance();
+        //     if (!isInChord && !isInNote) {
+        //         console.log("hit");
+        //         c = "";
+        //     }
+        //     console.log(c);
+        //     i++;
+        // } else 
+        
+        if (isMeasureMeta(c)) {
             measureData = addToken(measureData,{type:"measureMeta",value:c});
-            advance();
+            c = "";
+            i++;
             console.log(c);
         } else if (isNote(c)) {
             if (!isInChord) {
@@ -86,10 +107,11 @@ function getMeasureData(input) {
                 i++;
                 console.log(c);
             } else {
-                chords = addToken(chords,{type:"note",value:/\([ABCDEF]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+\)/.exec(c)[0]});
+                chords = addToken(chords,{type:"note",value:/\([ABCDEF]{1}[b#]{0,1},\s*[0-9]+,\s*[0-9]+,\s*[a-z]+\)/.exec(c)[0]});
                 // advance();
                 c = "";
                 i++;
+                isInNote = false;
                 console.log(c);
 
             }
@@ -104,6 +126,14 @@ function getMeasureData(input) {
             c = "";
             i++;
         } else {
+            if (isNoteHeader(c)) {
+                console.log("hit noteheader");
+                isInNote = true;
+            }
+            if (isNoteFooter(c)) {
+                console.log("hit notefooter");
+                isInNote = false;
+            }
             i++;
         }
     }
@@ -168,11 +198,33 @@ function lex(input) {
 
 }
 
-function test_lex() {
-    text = document.getElementById("music_markdown_textarea").value;
-    tokens = lex(text);
-    return tokens;
+var glob_tokens;
+
+function parse_and_evaluate() {
+    let text = document.getElementById("music_markdown_textarea").value;
+    let tokens = lex(text);
+    // glob_tokens = tokens;
+    console.log(tokens)
+    let xmlDoc = evaluate(tokens);
+    musicXMLTextBox = document.getElementById("music_xml_textarea");
+    musicXMLTextBox.disabled = false;
+    let xmlserializer = new XMLSerializer();
+    musicXMLTextBox.innerHTML = xmlserializer.serializeToString(xmlDoc);
+    // return tokens;
 }
 
 // console.log(isMeasureMeta("$T, 4/4, Am$"));
 
+
+
+/*
+title=me
+author=me
+piano {
+|$T,4/4,Am$ [(A,3,3),(C,3,3),(E,3,3)] (Db,4,3) (Eb,3,3)[(A,3,3),(C,3,3),(E,3,3)]|
+|$T,4/4,Am$ [(A,3,3),(C,3,3),(E,3,3)] (Db,4,3) (Eb,3,3)[(A,3,3),(C,3,3),(E,3,3)]|
+
+|$T,4/4,Am$ [(A,3,3),(C,3,3),(E,3,3)] (Db,4,3) (Eb,3,3)[(A,3,3),(C,3,3),(E,3,3)]|
+|$T,4/4,Am$ [(A,3,3),(C,3,3),(E,3,3)] (Db,4,3) (Eb,3,3)[(A,3,3),(C,3,3),(E,3,3)]|
+}
+*/

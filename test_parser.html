@@ -12,15 +12,16 @@
             <textarea id="music_markdown_textarea" cols="50" rows="7" ></textarea>
         </div>
         <div class="center_text space_top_less space_bottom">
-            <a id="run_music_markdown" href="javascript:test_lex()">Generate Sheet Music</a>
+            <a id="run_music_markdown" href="javascript:parse_and_evaluate()">Generate Sheet Music</a>
         </div>
         <div class="center_text space_top_less space space_bottom">
             <h3>MusicXML will appear below</h3>
-            <textarea id="music_markdown_textarea" cols="50" rows="5" maxlength="100" disabled="true"></textarea>
+            <textarea id="music_xml_textarea" cols="50" rows="5" disabled="true"></textarea>
         </div>
         <!-- <div id="sheet_music_area" class="center_text">
             <header>Sheet Music will appear here</header>
         </div> -->
     </body>
     <script src="parser.js"></script>
+    <script src="evaluate.js"></script>
 </html>
