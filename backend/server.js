@@ -1,29 +1,3 @@
-/* Usage:
- * POST
- * {
- *  "username": username,
- *  "fileName": name of file to overwrite,
- *  "file": contents of the file as a string
- * }
- * RETURNS nothing
- * 
- * GET
- * {
- *  "username": username,
- *  "fileName": name of file to fetch
- * }
- * RETURNS
- * if fileName is empty:
- * {
- *  "files": list of filenames
- * }
- * otherwise:
- * {
- *  "fileName": name of file
- *  "data": contents of file as a string
- * }
- * 
- */
 
 const Firestore = require('@google-cloud/firestore');
 
@@ -131,6 +105,17 @@ app.get('/login', async (req, res) => {
 });
 
 
+/*
+ * /save Usage
+ * 
+ * example:
+ * /save?username=carl&fileName=sonata
+ * 
+ * Request body:
+ * {data: "string of file contents"}
+ * 
+ */
+
 app.post('/save', async (req, res) => {
     let dataJSON = getFileDataJSON(req.query);
 
@@ -168,6 +153,19 @@ app.post('/save', async (req, res) => {
     });
 });
 
+/*
+ * /getFile Usage
+ * 
+ * example:
+ * /getFile?username=carl&fileName=sonata
+ * 
+ * If fileName is empty, responds with:
+ * {files: ["list", "of", "user's", "file", "names"]}
+ * 
+ * Otherwise:
+ * "Contents of requested file"
+ * 
+ */
 
 app.get('/getFile', async (req, res) => {
     let data = req.query;
