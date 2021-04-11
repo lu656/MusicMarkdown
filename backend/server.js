@@ -27,8 +27,9 @@
 
 const Firestore = require('@google-cloud/firestore');
 
-const http = require('http');
-const url = require('url');
+const express = require('express');
+const app = express();
+const port = 8080;
 const server = http.createServer();
 
 const db = new Firestore({
@@ -135,8 +136,7 @@ function getFileDataJSON(data) {
     }
 }
 
-async function handle(req, res) {
-    //if the data is being safed
+app.post('/save', (req, res) => {
     req.on('data', async function (data) {
         let dataJSON = getSaveDataJSON(data);
 
@@ -145,7 +145,7 @@ async function handle(req, res) {
             console.log("Bad Request");
             return;
         }
-        
+
         const docRef = db.collection('users/' + dataJSON.username).doc(dataJSON.fileName);
         let docJSON = {
             "data": dataJSON.data
@@ -154,9 +154,11 @@ async function handle(req, res) {
         await docRef.set(docJSON);
 
         res.writeHead(200);
-    })
+    });
+});
 
-    //if the data is being requested
+
+app.get('/getFile', (req, res) => {
     req.on('data', async function (data) {
         let dataJSON = getFileDataJSON(data);
 
@@ -194,7 +196,7 @@ async function handle(req, res) {
             red.end(fileJSON);
         }
     });
-}
+});
 
 async function createAccount(req, res) {
 	let body = JSON.parse(JSON.stringify(req.headers))
@@ -233,5 +235,8 @@ async function createAccount(req, res) {
 
 
 // server.on('request', handleLogin);
-server.on('request', createAccount);
-server.listen(8080);
+// server.on('request', createAccount);
+// server.listen(8080);
+app.listen(port, () => {
+    console.log("Server listening for requests.");
+});
