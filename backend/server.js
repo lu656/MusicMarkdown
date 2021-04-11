@@ -62,14 +62,15 @@ function getSaveDataJSON(data) {
     }
 }
 
-function getFileDataJSON(data) {
-    let rawJSON;
+function getFileDataJSON(rawJSON) {
     try {
         if (typeof (rawJSON.username) != "string") {
+            console.log("Username not valid");
             return null;
         }
 
-        if (typoef(rawJSON.fileName) != "string") {
+        if (typeof(rawJSON.fileName) != "string") {
+            console.log("File name not valid");
             return null;
         }
 
@@ -82,7 +83,7 @@ function getFileDataJSON(data) {
     }
 }
 
-app.get('/login', (req, res) => {
+app.get('/login', async (req, res) => {
     // req.on('data', async)
     // const docRef = db.collection('users').doc('alovelace');
 
@@ -162,7 +163,7 @@ app.post('/save', (req, res) => {
 });
 
 
-app.get('/getFile', (req, res) => {
+app.get('/getFile', async (req, res) => {
     let data = req.query;
     let dataJSON = getFileDataJSON(data);
 
@@ -178,30 +179,32 @@ app.get('/getFile', (req, res) => {
         let filesJSON = {
             "files": []
         };
+        console.log(snapshot);
         snapshot.forEach((file) => {
             filesJSON.files.append(file.id);
         });
         res.writeHead(200);
         res.end(filesJSON);
     } else { // otherwise, return data from requested file
-        const snapshot = await db.collection('users').doc(dataJSON.username).get();
+        let doc = await db.collection('users').doc(dataJSON.username).get();
+        let fileList = doc.data().files;
         let fileJSON = {
-            "fileName": data,
+            "fileName": dataJSON.fileName,
             "data": ""
         }
-        snapshot.forEach((file) => {
-            if (file.id == data) {
-                fileJSON.data = data.data();
+        console.log(doc.data());
+        res.writeHead(200);
+        for (let fileName in fileList) {
+            console.log(fileName, dataJSON.fileName);
+            if (fileName == dataJSON.fileName) {
+                res.send(fileList[fileName]);
                 return;
             }
-        });
-
-        res.writeHead(200);
-        res.end(fileJSON);
+        }
     }
 });
 
-app.get('/createAccount', (req, res) => {
+app.get('/createAccount', async (req, res) => {
     let body = req.query;
     let email = body['email'];
     let password = body['password'];
