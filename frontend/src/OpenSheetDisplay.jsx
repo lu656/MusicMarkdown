@@ -95,14 +95,24 @@ class OpenSheetMusicDisplay extends Component {
     console.log(this.props);
   }
 
-  setupOsmd() {
+  async setupOsmd() {
     const options = {
       autoResize: this.props.autoResize !== undefined ? this.props.autoResize : true,
       drawTitle: this.props.drawTitle !== undefined ? this.props.drawTitle : true,
     };
     this.osmd = new OSMD(this.divRef.current, options);
     // this.osmd.load(process.env.PUBLIC_URL + '/' + this.props.file).then(() => this.osmd.render());
-    this.osmd.load(this.props.content).then(() => this.osmd.render());
+    try {
+      await this.osmd.load(this.props.content);
+      await this.osmd.render();
+      // this.osmd.load(this.props.content).then(() => {
+      //   try {
+      //     this.osmd.render();
+      //   } catch (error) {}
+      // });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   resize() {
@@ -113,12 +123,22 @@ class OpenSheetMusicDisplay extends Component {
     window.removeEventListener('resize', this.resize);
   }
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     if (this.props.drawTitle !== prevProps.drawTitle) {
       this.setupOsmd();
     } else {
       // this.osmd.load(process.env.PUBLIC_URL + '/' + this.props.file).then(() => this.osmd.render());
-      this.osmd.load(this.props.content).then(() => this.osmd.render());
+      try {
+        await this.osmd.load(this.props.content);
+      await this.osmd.render();
+        // this.osmd.load(this.props.content).then(() => {
+        //   try {
+        //     this.osmd.render();
+        //   } catch (error) {}
+        // });
+      } catch (error) {
+        console.log(error);
+      }
     }
     window.addEventListener('resize', this.resize);
   }

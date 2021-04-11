@@ -18,7 +18,7 @@ class LandingPage extends Component {
     super(props);
     console.log('Page Rerendered');
     localStorage.removeItem('parsedResult');
-    this.state = { sheetContent: '', editorContent: '', lastNewLine: false };
+    this.state = { sheetContent: '', editorContent: '', twoNewLine: false };
   }
 
   shouldComponentUpdate() {
@@ -29,11 +29,25 @@ class LandingPage extends Component {
     const customRule = new CustomRule();
     this.refs.aceEditor.editor.getSession().setMode(customRule);
     this.refs.aceEditor.editor.setAutoScrollEditorIntoView(true);
+    this.refs.aceEditor.editor.commands.on('afterExec', (eventData) => {
+      if (eventData.command.name === 'insertstring') {
+        if (eventData.args === '\n') {
+          if (this.state.twoNewLine === true) {
+            this.setState({ twoNewLine: false }, () => {
+              this.refreshSheet();
+            });
+          } else {
+            this.setState({ twoNewLine: true });
+          }
+        } else {
+          this.setState({ twoNewLine: false });
+        }
+      }
+    });
   }
 
   editorOnChange(e) {
     this.setState({ editorContent: e });
-    console.log(this.state.editorContent);
   }
 
   refreshSheet() {
@@ -172,6 +186,7 @@ class LandingPage extends Component {
                           height='75vh'
                           value={editorContent}
                           onChange={(e) => this.editorOnChange(e)}
+                          on
                           wrapEnabled
                           editorProps={{ $blockScrolling: true }}
                           setOptions={{
