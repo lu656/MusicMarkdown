@@ -218,6 +218,7 @@ function parse_and_evaluate() {
 
     maxStave = 0;
     lastMeasureNumber = 0;
+    lastStaveNumber = 0;
 
     initializedAttributes = false;
     lastTimeSig = "";

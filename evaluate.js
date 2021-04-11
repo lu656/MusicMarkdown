@@ -33,6 +33,7 @@ var getFifths = {
 
 var maxStave = 0;
 var lastMeasureNumber = 0;
+var lastStaveNumber = 0;
 
 var initializedAttributes = false;
 var lastTimeSig = "";
@@ -169,6 +170,14 @@ function evaluate(lexedInfo) {
                 console.log(measure.measureNum, measureLexElem.type);
                 throw "Syntax Error";
             }
+            if (lastStaveNumber != measure.staveNum) {
+                let backupElem = xmlDoc.createElement("backup");
+                let durElem = xmlDoc.createElement("duration");
+                durElem.innerHTML = "300";
+                backupElem.appendChild(durElem);
+                measureNode.append(backupElem);
+            }
+
             if (measureLexElem.type == "measureMeta") {
                 let attributesElem = "";
                 let staveElem = "";
@@ -178,11 +187,11 @@ function evaluate(lexedInfo) {
                 if (attributesElems.length != 0) {
                     attributesElem = attributesElems[0];
                     staveElem = attributesElem.getElementsByTagName("staves")[0];
-                    let backupElem = xmlDoc.createElement("backup");
-                    let durElem = xmlDoc.createElement("duration");
-                    durElem.innerHTML = "300";
-                    backupElem.appendChild(durElem);
-                    measureNode.append(backupElem);
+                    // let backupElem = xmlDoc.createElement("backup");
+                    // let durElem = xmlDoc.createElement("duration");
+                    // durElem.innerHTML = "300";
+                    // backupElem.appendChild(durElem);
+                    // measureNode.append(backupElem);
                 } else {    
                     attributesElem = xmlDoc.createElement("attributes");
                     staveElem = xmlDoc.createElement("staves");
@@ -352,6 +361,7 @@ function evaluate(lexedInfo) {
                 console.log("appended");
                 partMeasures.appendChild(measureXML);
                 lastMeasureNumber = measures[i].measureNum;
+                lastStaveNumber = measures[i].staveNum;
             }
             
         }
